@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link type="text/css" rel="stylesheet" href="css/spectre.min.css" media="screen,projection"/>
+	<link type="text/css" rel="stylesheet" href="css/main.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/navbar.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/genericView.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/configTools.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/colors.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/page.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="libraries/datatable/css/datatable.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="css/mermaid.min.css" />
+	<script type="module">
+        import './main.ts';
+    </script>
+    <title>CRM System</title>
+    <base href="/crm/">
+    <style>
+        #app {
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="columns">
+            <div id="pageWrapper" class="column col-lg-auto">
+                <header class="navbar">
+                    <section class="navbar-section">
+                        <a class="navbar-brand mr-2" href="/crm/">Dashboard</a>
+                    </section>
+                    <section id="navbar-entities" class="navbar-center">
+                    </section>
+                    <section class="navbar-section"></section>
+                </header>
+                <div id="viewContent">
+                </div>
+            </div>
+            <div id="previewWindow" class="column col-4">
+                <header class="navbar">
+                    <section class="navbar-section">
+                    <button id="previewWindow-close-btn">x</button>
+                    </section>
+                </header>
+                <div id="previewWindow_view"></div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://unpkg.com/sortablejs@1.7.0/Sortable.min.js"></script>
+<script src="https://unpkg.com/clusterize.js@0.18.0/clusterize.min.js"></script>
+<script src="https://unpkg.com/frappe-datatable@0.0.5/dist/frappe-datatable.min.js"></script>
+</html>

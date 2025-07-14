@@ -1,0 +1,32 @@
+{
+  "name": "sperlich.at",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.32",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
+    "vite": "^5.4.19",
+    "vite-plugin-handlebars": "^2.0.0"
+  },
+  "dependencies": {
+    "@splidejs/splide": "^4.1.4",
+    "axios": "^1.10.0",
+    "glob": "^11.0.0",
+    "gridjs": "^6.2.0",
+    "jquery": "^3.7.1",
+    "material-icons": "^1.13.12",
+    "materialize-css": "^1.0.0-rc.2",
+    "moment": "^2.30.1",
+    "mysql": "^2.18.1",
+    "progressbar.js": "^1.1.1",
+    "spectre.css": "^0.5.9",
+    "sql-bricks": "^3.0.1",
+    "uuid": "^11.1.0"
+  }
+}

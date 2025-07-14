@@ -1,0 +1,51 @@
+.genericRow {
+	margin-top: 10px;
+	padding-left:20px;
+	min-height: 50px;
+	align-content: center;
+}
+.genericLabel {
+	align-content:first center;
+	max-width: 200px;
+	user-select: none;
+	color:#EEE;
+}
+.genericValue {
+	height: 40px;
+	background-color: transparent;
+	color:#AAA;
+}
+.editmode {
+	border:none;
+	border-bottom: solid;
+	border-width:2px;
+	border-color:#666;
+	outline: none;
+	transition: 0.05s;
+}
+.editmode:hover {
+	background-color: var(--color-input-bg);
+	transition: 0.2s;
+}
+.editmode:focus {
+	border-color:var(--color-info-hover);
+	background-color: var(--color-input-focus);
+}
+.readonly {
+	background-color: transparent;
+	border:none;
+}
+.genericLabelHeader {
+	margin-top:50px;
+	background-color: rgba(0, 0, 0, 0.2);
+	width:86%;
+	padding:6px 25px;
+	align-content: center;
+	color:#AAA;
+	font-size:1em;
+}
+.limitedContainer #viewContent {
+	padding-left:75px;
+	padding-right: 75px;
+	padding-bottom:25px;
+}
