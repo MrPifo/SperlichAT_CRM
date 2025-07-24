@@ -1,22 +1,25 @@
-import { Page } from '@/views';
+import { Page } from '@views';
 import { ViewMode } from '@core';
 import { Router } from '../router/router';
 import $ from 'jquery';
+import { Button } from '@component';
 
 export default class PreviewWindow {
 
 	isOpen: boolean = false;
 	page!: Page;
 	window: JQuery<HTMLElement>;
+	content: JQuery<HTMLElement>;
 	rowId!: string|null;
-	closeBtn: JQuery<HTMLElement>;
+	closeBtn: Button;
 
 	constructor() {
 		this.window = $('#previewWindow');
-		this.closeBtn = this.window.find("#previewWindow-close-btn");
-		this.closeBtn.on("click", this.close.bind(this));
-
-		this.hide();
+		this.content = $('#previewWindowContent');
+		this.closeBtn = new Button({
+			existingElement: $("#closeBtn")
+		});
+		this.closeBtn.onClick.addListener(this.close.bind(this));
 	}
 	render() {
 		if (this.rowId != null) {
@@ -25,7 +28,7 @@ export default class PreviewWindow {
 			this.page.loadData();
 		}
 	}
-	open(page:Page, entityName: string, viewMode: ViewMode, id: string) {
+	open(page: Page, entityName: string, viewMode: ViewMode, id: string) {
 		console.log(`Opening Preview-Tab: ${entityName} in ${viewMode} of ${id}`);
 		this.isOpen = true;
 		this.page = page;
@@ -37,6 +40,9 @@ export default class PreviewWindow {
 		this.isOpen = false;
 		this.rowId = null;
 		this.hide();
+	}
+	clearContent() {
+		this.content.empty();
 	}
 	private show() {
 		this.window.css("display", "block");

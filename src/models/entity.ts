@@ -1,31 +1,76 @@
-import { ViewMode } from "@core";
+import { entities, ViewMode } from "@core";
 import { Page } from "@views";
 import { FieldDefinition, Parameter, Recordcontainer } from "@models";
-import { EntityData, EntityDataRows, IFieldParams } from "@datamodels";
-import { api }  from '@libraries';
+import { EntityData, EntityDataRows, ICompileOptions, IConsumer, IFieldParams, IProvider } from "@datamodels";
+import { api } from '@libraries';
 
 export class Entity {
 
-    name: string = "";
+	name: string = "";
+	title: string = "";
 	fields: Record<string, FieldDefinition> = {};
 	params: Record<string, Parameter> = {};
-	db: Recordcontainer;
+	db!: Recordcontainer;
 	page?: Page;
 	
 	mainPage?: Page;
 	filterPage?: Page;
 	editPage?: Page;
 	previewPage?: Page;
+	lookupPage?: Page;
+	providers: IProvider[] = [];
+	consumers: IConsumer[] = [];
+
+	menuContext?: string;
+	defaultProvider!: IProvider;
+
+	private globalFieldOrderCount: number = 0;
 	
 	constructor(name:string) {
 		this.name = name;
-		this.db = new Recordcontainer("");
+
+		this.addParameter("singleRowId");
+		this.defaultProvider = {
+			name: "#PROVIDER",
+			context: this.getContextName(),
+			parameter: {}
+		};
+		this.addProvider(this.defaultProvider);
 	}
 
-	addField(name:string, params:IFieldParams):FieldDefinition {
+	addField(name: string, params: IFieldParams): FieldDefinition {
+		this.globalFieldOrderCount++;
 		this.fields[name] = new FieldDefinition(name, params);
-
+		this.fields[name].order = this.globalFieldOrderCount;
 		return this.fields[name];
+	}
+	addConsumer(consumer: IConsumer) {
+		if (consumer.params == null) {
+			consumer.params = {};	
+		}
+
+		this.consumers.push(consumer);
+	}
+	addProvider(provider: IProvider) {
+		this.providers.push(provider);
+	}
+	getProvider(name: string):IProvider {
+		const provider = this.providers.find(p => p.name == name);
+
+		if (provider != null) {
+			return provider;
+		}
+
+		throw new Error(`Provider ${name} not found!`);
+	}
+	getConsumer(name: string): IConsumer {
+		const consumer = this.consumers.find(c => c.name == name);
+
+		if (consumer != null) {
+			return consumer;
+		}
+
+		throw new Error(`Consumer ${name} not found!`);
 	}
 	addParameter(name: string, defaultValue?:string) {
 		this.params[name] = new Parameter(name, defaultValue);
@@ -39,7 +84,7 @@ export class Entity {
 			}
 		}
 
-		throw new Error(`Field ${fieldName} not found`);
+		return null;
 	}
 	getColumns(): FieldDefinition[] {
 		let columns:FieldDefinition[] = [];
@@ -72,7 +117,7 @@ export class Entity {
 
 		return fields;
 	}
-	getFieldNameByColumn(column: string): FieldDefinition {
+	getFieldNameByColumn(column: string): FieldDefinition|null {
 		let field: FieldDefinition|undefined;
 
 		Object.keys(this.fields).forEach(f => {
@@ -84,8 +129,23 @@ export class Entity {
 		if (field !== undefined) {
 			return field;
 		} else {
-			throw new Error(`Failed to find the corresponding field in "${this.name}" by the column "${column}"`);	
+			return null;
 		}
+	}
+	getPrimaryKeyField(): FieldDefinition|null {
+		let field: FieldDefinition|null = null;
+
+		for (let key in this.fields) {
+			console.log(key);
+			const fieldDefinition:FieldDefinition = this.fields[key];
+
+			if (fieldDefinition?.primaryKey == true) {
+				field = fieldDefinition;
+				break;
+			}	
+		}
+
+		return field;
 	}
 	getPrimaryKeyColumn(): string {
 		return this.db.primaryKeyColumn;
@@ -107,6 +167,9 @@ export class Entity {
 		Object.keys(this.params).forEach(param => {
 			this.params[param].clear();
 		});
+	}
+	getContextName():string {
+		return this.name.replace('_entity', '');
 	}
 
 	async requestRows(params?: Record<string, any>): Promise<EntityDataRows> {
@@ -146,32 +209,24 @@ export class Entity {
 			return new EntityData(this.name);
 		}
 	}
-	compile(): void {
-		let primaryKeyColumn = null;
-
-		Object.keys(this.fields).forEach(key => {
-			const field = this.fields[key];
-
-			if (field.params != null) {
-				if (field.params.primaryKey != null && field.params.column != null) {
-					primaryKeyColumn = field.params.column;
-					return;
-				}
-			}
-		});
-
-		if (primaryKeyColumn == null) {
-			throw new Error("Primary Key must not be empty!");
-		}
-
+	compile(options?: ICompileOptions): void {
 		this.addField("#UUID", {
 			primaryKey: true,
-			column: primaryKeyColumn,
+			column: this.db.primaryKeyColumn,
 			title: "#UUID"
 		});
-		this.addParameter("singleRowId");
 
-		this.db.primaryKeyColumn = primaryKeyColumn;
+		for (const key in this.fields) {
+			const definition: FieldDefinition = this.fields[key];
+			
+			if (definition.params.consumer != null) {
+				const consumer: IConsumer = this.getConsumer(definition.params.consumer as string);
+				consumer.provider = entities.getEntity(consumer.context).getProvider(consumer.provider as string ?? '#PROVIDER');
+				definition.params.consumer = consumer;
+				definition.consumer = consumer;
+				consumer.originContext = this.getContextName();
+			}
+		}
 	}
 	transpileQuery():string {
 		let db = this.db;
@@ -232,6 +287,9 @@ export class Entity {
 				break;
 			case ViewMode.MAIN:
 				this.mainPage = page;
+				break;
+			case ViewMode.LOOKUP:
+				this.lookupPage = page;
 				break;
 		}
 	}

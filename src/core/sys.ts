@@ -10,8 +10,9 @@ class System {
 	public readonly VIEWMODE_DETAIL:number = 3;
 	public readonly VIEWMODE_MAIN:number = 4;
     
-	operatingState: string | null = null;
-	viewMode: ViewMode | null = null;
+	operatingState: OperatingState = OperatingState.VIEW;
+	viewMode: ViewMode = ViewMode.DETAIL;
+	selectedRow: string | null = null;
 	currentId: string | null = null;
 	currentContext: string | null = null;
 	isEditMode = (): boolean => this.viewMode == ViewMode.NEW || this.viewMode == ViewMode.EDIT;
@@ -26,6 +27,14 @@ export enum ViewMode {
 	EDIT = 1,
 	FILTER = 2,
 	DETAIL = 3,
-	MAIN = 4
+	MAIN = 4,
+	LOOKUP = 5
+}
+export enum State {
+	AUTO = 0,
+	EDIT = 1,
+	READONLY = 2,
+	DISABLED = 3,
+	INVISIBLE = 4
 }
 export var sys = new System();

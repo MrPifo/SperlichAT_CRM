@@ -1,10 +1,14 @@
 import $ from 'jquery';
 import { Cell, Row, HeaderColumn, DataTableConfig } from '@datatable';
+import { TableView } from '@views';
+import { ContentType } from '@/models';
+import { local } from '@/core';
 
 export class DataTable {
 
+	private view: TableView;
 	private container: JQuery<HTMLElement>;
-	private tableContainerHtml!: JQuery<HTMLElement>;
+	public tableContainerHtml!: JQuery<HTMLElement>;
 	private headerHtml!: JQuery<HTMLElement>;
 	private bodyHtml!: JQuery<HTMLElement>;
 	private footerHtml!: JQuery<HTMLElement>;
@@ -22,7 +26,8 @@ export class DataTable {
 	onRowSelected: ((row: Row) => void)[] = [];
 	onRowDeselected: ((row: Row) => void)[] = [];
 
-	constructor(containerId: string, config?: DataTableConfig) {
+	constructor(view: TableView, containerId: string, config?: DataTableConfig) {
+		this.view = view;
 		this.container = $(`#${containerId}`);
 
 		if (config != null) {
@@ -42,7 +47,7 @@ export class DataTable {
 		this.render();
 	}
 	renderTableContainer() {
-		this.tableContainerHtml = $(`<table class='table table-scroll table-striped table-hover datatable'></table>`);
+		this.tableContainerHtml = $(`<table class="section table datatable is-hoverable is-fullwidth is-striped is-narrow"></table>`);
 		this.tableContainerHtml.empty();
 		this.headerHtml = $(`<thead></thead>`);
 		this.bodyHtml = $(`<tbody></tbody>`);
@@ -53,11 +58,31 @@ export class DataTable {
 		this.container.append(this.tableContainerHtml);
 		this.renderEmptyRows();
 	}
-	renderBody() {
+	async renderBody() {
 		this.bodyHtml.empty();
 		this.rows.forEach(row => {
 			this.bodyHtml.append(row.createFullRowHtml());
 		});
+		for (const row of this.rows) {
+			local.fieldMap = {};
+			const setValuePromises:any = [];
+			
+			row.cells.forEach(c => {
+				//@ts-ignore
+				local.fieldMap[c.field?.fieldName] = c.field;
+				if (c.field?.setValue) {
+					setValuePromises.push(c.field.setValue(c.value, true));
+				}
+			});
+			
+			await Promise.all(setValuePromises);
+		}
+		
+		for (const row of this.rows) {
+			for (const cell of row.cells) {
+				await cell.setValue(cell.value);
+			}
+		}
 	}
 	renderHeader() {
 		this.headerHtml.empty();
@@ -78,7 +103,7 @@ export class DataTable {
 
 	}
 	setColumns(columns: HeaderColumn[]) {
-		let selectorColumn = new HeaderColumn(0, "SELECTOR", "", ContentType.SELECTOR);
+		let selectorColumn = new HeaderColumn(0, "SELECTOR", "", ContentType.BOOLEAN);
 		columns.unshift(selectorColumn);
 
 		if (this.multiSelect == false) {
@@ -100,7 +125,7 @@ export class DataTable {
 			this.headerColumns.forEach((column, columnIndex) => {
 				let cellValue: string;
 				
-				if (column.contentType === ContentType.SELECTOR) {
+				if (column.contentType === ContentType.BOOLEAN) {
 					// SELECTOR bekommt immer den ersten Wert (die ID)
 					cellValue = src[0];
 				} else if (column.name === "#UUID") {
@@ -113,7 +138,7 @@ export class DataTable {
 					dataIndex++;
 				}
 				
-				const cell: Cell = new Cell(column.name, cellValue, column.contentType);
+				const cell: Cell = new Cell(this.view.entity.name, column.name, cellValue, column.contentType);
 				
 				if (column.hidden) {
 					cell.hide();
@@ -141,9 +166,4 @@ export class DataTable {
 	fireRowDeselected(row: Row) {
 		this.onRowDeselected.forEach(callback => callback(row));
 	}
-}
-export enum ContentType {
-	TEXT,
-	BOOLEAN,
-	SELECTOR
 }

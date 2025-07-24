@@ -1,4 +1,11 @@
+export type { IRenderParams } from './fieldrender/IRendererParams.ts';
+export { BaseRenderer } from './fieldrender/baseRenderer.ts';
+export { FieldRenderer } from './fieldrender/fieldRenderer.ts';
+export { DateRenderer } from './fieldrender/dateRenderer.ts';
+export { IconRenderer } from './fieldrender/iconRenderer.ts';
+export { ImageRenderer } from './fieldrender/imageRenderer.ts';
+export { NumberRenderer } from './fieldrender/numberRenderer.ts';
+export { SelectorRenderer } from './fieldrender/selectorRenderer.ts';
 export { PreviewTab } from './previewTab.ts';
 export { Button } from './button.ts';
 export { GenericFooter } from './genericFooter.ts';
-export { FieldRenderer } from './fieldRenderer.ts';

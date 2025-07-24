@@ -18,9 +18,22 @@ export const api = {
 		if (config?.asMap == undefined) {
 			config.asMap = false;
 		}
-		console.log(this.paths.GENERIC_SQL);
+		if (config.sql != null) {
+			config.sql = this.encodeSQL(config.sql);
+		}
+		
 		let result = await this.request(this.paths.GENERIC_SQL, config);
-
+		return result;
+	},
+	async executeDB(sql:string, config?: IDBRequest) {
+		if (config === undefined) {
+			config = {};
+		}
+		
+		config.sql = this.encodeSQL(sql);
+		
+		let result = await this.request(this.paths.GENERIC_SQL, config);
+		
 		return result;
 	},
 	async request(path:string, config?:IRequestConfig) {
@@ -51,17 +64,6 @@ export const api = {
 					response = await axios.post(url.toString(), config);
 					break;
 				case this.GET:
-					/*if ("params" in config == false) {
-						config.params = {};
-					}
-					
-					let keys = Object.keys(config);
-					for (var entry of keys) {
-						if (entry == "params") continue;
-		
-						config.params[entry] = config[entry];
-					}*/
-	
 					response = await axios.get(url.toString(), config);
 					break;
 			}
@@ -69,10 +71,14 @@ export const api = {
 			throw error.response.data.errorMessage;
 		}
 
-		//console.log(response);
 		return response;
+	},
+	encodeSQL(sql:string):string {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(sql);
+		const base64 = btoa(String.fromCharCode(...data));
+		return base64;
 	}
-
 }
 interface IRequestConfig extends AxiosRequestConfig {
 

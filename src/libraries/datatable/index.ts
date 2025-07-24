@@ -1,4 +1,4 @@
-export { DataTable, ContentType } from './datatable';
+export { DataTable } from './datatable';
 export type { DataTableConfig } from './dataTableConfig';
 export { HeaderColumn } from './headerColumn';
 export { Row } from './row';

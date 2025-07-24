@@ -1,0 +1,33 @@
+.avatar {
+	border-radius: 50%;
+	background-color: #7716c5;
+	border: solid;
+	border-color:#AAA;
+	border-width:2px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.avatarIcon {
+
+}
+.avatarImage {
+
+}
+.avatarText {
+	color: white;
+	font-weight: bold;
+	font-size: 13px;
+	font-family: arial;
+	text-align: center;
+	vertical-align: baseline;
+	width:100%;
+}
+.smallAvatar {
+	width: 34px;
+	height: 34px;
+}
+.bigAvatar {
+	width: 40px;
+	height: 40px;
+}

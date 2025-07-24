@@ -1,32 +1,21 @@
 .config-tools {
-	border-bottom: none;
-	border-width:1px;
-	border-color:#666;
-	background-color: transparent;
-	height:60px !important;
-	width: 100%;
-}
-.config-tools section {
-	
+	max-height: 100px;
+	padding-top:20px;
+	padding-bottom:20px;
 }
 .config-tools button {
-	margin-right:8px;
-	height:25px;
-	width:50px !important;
-	background-color:#F34;
-	color:#FFF;
-	border:none;
+	transition: 0.1s;
 }
 .config-tools button:hover {
-	background-color:rgb(167, 35, 35);
+	filter:brightness(0.6);
+	transition: 0.2s;
 }
 .config-tools .material-icons {
-	font-size:1.3em;
-	vertical-align:middle !important;
+	font-size:1em;
 }
 .config-tools .disabled {
-	background-color: #555;
+	
 }
 .datatable-cell-value-selector {
-	accent-color:#6aff5c !important;
+	
 }

@@ -1,17 +1,23 @@
 export class Value {
 
-	value: string | Number | Object | null;
+	value: any;
 
-	constructor(value: string | Number | Object | null) {
+	constructor(value: any) {
 		this.value = value;
 	}
-	setValue(value: string | Number | Object | null) {
+	setValue(value: any) {
 		this.value = value;
 	}
 	getValueAsString(): string {
 		return this.value == null ? '' : this.value.toString();
 	}
-	getValueAsNumber(): Number {
-		return this.value as Number;
+	getValueAsNumber(): number {
+		return Number(this.value);
+	}
+	isNull(): boolean {
+		return this.value == null;
+	}
+	isEmpty(): boolean {
+		return this.value == null || this.value == '';
 	}
 }

@@ -1,5 +1,4 @@
-import { Entity, Field, FieldDefinition } from '@models';
-import { EntityDataRows } from '@datamodels';
+import { Entity, FieldDefinition } from '@models';
 
 export class Entities {
 
@@ -22,8 +21,15 @@ export class Entities {
 			return names;
 		}
 	}
+	hasEntity(context: string): boolean {
+		if (this.models[context.toLowerCase()] != null) {
+			return true;
+		}
+
+		return false;
+	}
 	getEntity(context:string):Entity {
-		let entity: Entity = this.models[context.toLowerCase()];
+		let entity: Entity = this.models[context.replace('_entity', '').toLowerCase()];
 		
 		if (entity != null) {
 			return entity;

@@ -146,6 +146,91 @@ export class SqlBuilder {
         }
     }
 
+    // Neue insertData Methode für SqlBuilder
+    static insertData(tableName: string, columns: string[], values: DynamicValue[]): string {
+        if (columns.length !== values.length) {
+            throw new Error("Columns and values arrays must have the same length");
+        }
+        
+        const columnList = columns.join(", ");
+        const valueList = values.map(v => {
+            const expr = SqlBuilder.resolveDynamicValue(v);
+            return expr ? expr.resolve() : 'NULL';
+        }).join(", ");
+        
+        return `INSERT INTO ${tableName} (${columnList}) VALUES (${valueList})`;
+    }
+    static updateData(tableName: string, setColumns: string[], setValues: DynamicValue[], whereColumnsOrClause: string[] | string, whereValues?: DynamicValue[], whereOperators?: string[]): string {
+        if (setColumns.length !== setValues.length) {
+            throw new Error("SET columns and values arrays must have the same length");
+        }
+
+        const setClause = setColumns.map((col, index) => {
+            const expr = SqlBuilder.resolveDynamicValue(setValues[index]);
+            return `${col} = ${expr ? expr.resolve() : 'NULL'}`;
+        }).join(', ');
+
+        let whereClause: string;
+        if (typeof whereColumnsOrClause === 'string') {
+            whereClause = whereColumnsOrClause;
+        } else {
+            const whereColumns = whereColumnsOrClause;
+            if (!whereValues || whereColumns.length !== whereValues.length) {
+                throw new Error("WHERE columns and values arrays must have the same length");
+            }
+            whereClause = whereColumns.map((col, index) => {
+                const expr = SqlBuilder.resolveDynamicValue(whereValues[index]);
+                const operator = whereOperators?.[index] || '=';
+                return `${col} ${operator} ${expr ? expr.resolve() : 'NULL'}`;
+            }).join(' AND ');
+        }
+
+        return `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}`;
+    }
+    static updateDataWithBuilder(tableName: string, setData: Record<string, DynamicValue>, builder: SqlBuilder): string {
+        const setColumns = Object.keys(setData);
+        const setValues = Object.values(setData);
+        const setClause = setColumns.map((col, index) => {
+            const expr = SqlBuilder.resolveDynamicValue(setValues[index]);
+            return `${col} = ${expr ? expr.resolve() : 'NULL'}`;
+        }).join(', ');
+
+        const whereClause = builder.conditions.length > 0 
+            ? `WHERE ${builder.conditions.map(c => c.resolve()).join(` ${SqlBuilder.AND} `)}`
+            : '';
+
+        return `UPDATE ${tableName} SET ${setClause} ${whereClause}`.trim();
+    }
+    static deleteData(tableName: string, whereColumnsOrClause: string[] | string, whereValues?: DynamicValue[], whereOperators?: string[]): string {
+        let whereClause: string;
+        if (typeof whereColumnsOrClause === 'string') {
+            whereClause = whereColumnsOrClause;
+        } else {
+            const whereColumns = whereColumnsOrClause;
+            if (!whereValues || whereColumns.length !== whereValues.length) {
+                throw new Error("WHERE columns and values arrays must have the same length");
+            }
+            whereClause = whereColumns.map((col, index) => {
+                const expr = SqlBuilder.resolveDynamicValue(whereValues[index]);
+                const operator = whereOperators?.[index] || '=';
+                return `${col} ${operator} ${expr ? expr.resolve() : 'NULL'}`;
+            }).join(' AND ');
+        }
+
+        return `DELETE FROM ${tableName} WHERE ${whereClause}`;
+    }
+    static deleteDataWithBuilder(tableName: string, builder: SqlBuilder): string {
+        const whereClause = builder.conditions.length > 0 
+            ? `WHERE ${builder.conditions.map(c => c.resolve()).join(` ${SqlBuilder.AND} `)}`
+            : '';
+
+        if (!whereClause) {
+            throw new Error("DELETE requires WHERE clause for safety");
+        }
+
+        return `DELETE FROM ${tableName} ${whereClause}`.trim();
+    }
+
     async table(asMap?:boolean): Promise<any> {
         let result = await api.requestFromDB({
             sql: this.toString(),
@@ -265,4 +350,7 @@ interface IExpression {
     resolve() : string;
 
 }
-type DynamicValue = IExpression | string | number;
+export type DynamicValue = IExpression | string | number;
+export interface IQueryOptions {
+    selects?: DynamicValue[];
+}

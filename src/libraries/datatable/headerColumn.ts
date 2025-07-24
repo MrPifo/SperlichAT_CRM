@@ -1,4 +1,5 @@
-import { DataTable, ContentType } from "@datatable";
+import { ContentType } from "@models";
+import { DataTable } from "@datatable";
 import $ from 'jquery';
 
 export class HeaderColumn {
@@ -22,7 +23,7 @@ export class HeaderColumn {
 		this.element = $(`<th>${this.title ?? this.name}</th>`);
 		this.element.addClass("datatable-column");
 
-		if (this.contentType == ContentType.SELECTOR) {
+		if (this.contentType == ContentType.BOOLEAN) {
 			this.element.addClass("datatable-column-selector");
 		}
 

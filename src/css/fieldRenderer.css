@@ -1,0 +1,34 @@
+.field {
+	outline: none;
+	font-size: 0.95em;
+	align-content:center;
+	text-shadow: 1px 1px 2px #444;
+}
+.field label {
+	max-width: 10em;
+}
+.field:focus {
+    border-color: #38c7ff;  /* Rot */
+    box-shadow: 0 0 0 2px rgba(255, 56, 96, 0.1);
+}
+.field-label {
+    flex-basis: 150px;
+    text-align: left;
+	user-select: none;
+}
+.fieldEditValue {
+	
+}
+.fieldEditValue input {
+	margin-bottom:0px !important;
+}
+.fieldReadOnlyValue {
+
+}
+.fieldTable {
+	margin-bottom: 0.1cm !important;
+	user-select: none;
+}
+.fieldGeneric {
+	margin-bottom: 0.3cm !important;
+}

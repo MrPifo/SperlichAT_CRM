@@ -1,6 +1,5 @@
-import { entities, ViewMode } from "@/core";
-import { Entity, Field, FieldDefinition } from "@models";
-import { Value } from "@datamodels";
+import { db, entities, ViewMode } from "@core";
+import { Field, FieldDefinition } from "@models";
 
 export class EntityData {
 
@@ -17,18 +16,17 @@ export class EntityData {
 	setDataFromMap(raw: Record<string, string[]>) {
 		const entity = entities.getEntity(this.context);
 		this.fieldMap = {};
-
-		Object.keys(raw).forEach(key => {
+		
+		for (let key in raw) {
 			const fieldDefinition:FieldDefinition = entity.getFieldNameByColumn(key);
-			let field: Field = new Field(this.context, fieldDefinition.name);
-			field.setData(raw[key]);
+			let field: Field = new Field(this.context, fieldDefinition.name, raw[key]);
 
 			if (key == entity.db.primaryKeyColumn) {
 				this.uuid = field.value.getValueAsString();
 			}
 
 			this.fieldMap[key] = field;
-		});
+		}
 	}
 	setDataFrom2DArray(raw: string[]) {
 		const entity = entities.getEntity(this.context); // Diese Zeile fehlt!
@@ -53,5 +51,28 @@ export class EntityData {
 			const fieldKey = column === "#UUID" ? primaryKey : column;
 			return this.fieldMap[fieldKey]?.getValue() ?? "";
 		});
+	}
+	setField(fieldName: string, field: Field) {
+		this.fieldMap[fieldName] = field;
+	}
+	hasField(fieldName: string): boolean {
+		return this.fieldMap[fieldName] != null;
+	}
+	getColumns():string[] {
+		const columns: string[] = [];
+
+		for (let key in this.fieldMap) {
+			const fieldDefinition = this.fieldMap[key].definition;
+
+			if (fieldDefinition.isColumn() && columns.includes(fieldDefinition.column()) == false) {
+				columns.push(fieldDefinition.column());
+			}
+		}
+
+		return columns;
+	}
+	async upload() {
+		const entity = entities.getEntity(this.context);
+		await db.insertData(entity.db.table, this.getColumns(), this.getValues());
 	}
 }

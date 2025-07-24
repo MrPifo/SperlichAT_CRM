@@ -2,11 +2,14 @@ import handlebars from 'vite-plugin-handlebars';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import path from 'path';
-import entityCompilerPlugin from './plugins/entity-compiler';
+import { entityProcessesPlugin } from './plugins/entity-compiler';
 
 export default defineConfig({
     root: 'src',
     base: process.env.NODE_ENV === 'production' ? '/crm/' : '/',
+    optimizeDeps: {
+        include: ['vanillajs-datepicker']
+    },
     server: {
         port: 5174
     },
@@ -33,7 +36,7 @@ export default defineConfig({
         }
     },
     plugins: [
-        entityCompilerPlugin(),
+        entityProcessesPlugin(),
         handlebars({
             partialDirectory: resolve(__dirname, 'partials'),
             reloadOnPartialChange: true

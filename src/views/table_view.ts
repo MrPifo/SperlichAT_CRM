@@ -1,11 +1,12 @@
-import { EntityData, EntityDataRows, TableOptions } from "@datamodels";
+import { EntityData, TableOptions } from "@datamodels";
 import { BaseView } from "@views";
 import { DataTable, HeaderColumn } from "@datatable";
 import $ from 'jquery';
-import { entities, ViewMode } from "@core";
+import { db, entities, sys, ViewMode } from "@core";
 import { Row } from "@datatable";
 import { Router } from "@/router/router";
 import { ConfigTools, OperationMethod } from "@/pages/configTools";
+import { ContentType } from "@models";
 
 export class TableView extends BaseView {
 
@@ -13,23 +14,37 @@ export class TableView extends BaseView {
 	hiddenColumns: string[] = [];
 	table!: DataTable;
 	config: TableOptions;
+	sectionHtml!: JQuery<HTMLElement>;
 	tableHtmlElement!: JQuery<HTMLElement>;
 	data!: EntityData;
 	tools!: ConfigTools;
+	showTools: boolean;
+	multiSelect: boolean;
+	showRowCount: boolean;
+	enableSearch: boolean;
+	isLookup: boolean;
 
 	constructor(name: string, columns: string[], config: TableOptions) {
 		super(name, config);
 		this.columns = columns;
 		this.config = config;
+		this.showTools = config.showTools ?? true;
+		this.multiSelect = config.multiSelect!;
+		this.showRowCount = config.showRowCount!;
+		this.enableSearch = config.enableSearch!;
+		this.isLookup = config.isLookup!;
 		this.columns.unshift("#UUID");
 		this.hiddenColumns.push("#UUID");
+		this.fields = [];
 
 		window.addEventListener('resize', function(event) {
 			
 		}, true);
 	}
-	setData(data: EntityDataRows): void {
-		this.table.setData(data.getDataByColumns(this.columns));
+	async loadData(id:string|null): Promise<void> {
+		await super.loadData(id);
+
+		this.table.setData(this.rows.getDataByColumns(this.columns));
 		this.table.refresh();
 	}
 	buildView(parentView: BaseView|null): void {
@@ -38,16 +53,43 @@ export class TableView extends BaseView {
 		this.tableHtmlElement = $(`#${this.id}`);
 
 		this.table.render();
-		this.tools = this.createHeader();
-		this.tools.subscribe(OperationMethod.CREATE, () => {
-			Router.instance.openContext(this.entity, ViewMode.NEW, null);
-		});
+		this.sectionHtml = $('<section class="section" style="padding-top:10px"></section>');
+		this.sectionHtml.append(this.table.tableContainerHtml);
+		this.tableHtmlElement.append(this.sectionHtml);
+		
+		if (this.showTools == true) {
+			this.tools = this.createHeader();
+			this.tools.subscribe(OperationMethod.CREATE, () => {
+				Router.instance.openContext(this.entity, ViewMode.NEW, null);
+			});
+			this.tools.subscribe(OperationMethod.EDIT, (id: string) => {
+				Router.instance.openContext(this.entity, ViewMode.EDIT, id);
+			});
+			this.tools.subscribe(OperationMethod.DELETE, async (id: string) => {
+				const entity = entities.getEntity(this.entity.name);
+
+				await db.deleteData(entity.db.table, `${entity.db.primaryKeyColumn}='${id}'`);
+
+				if (Router.instance.previewWindow.rowId == id) {
+					Router.instance.closePreviewWindow();
+				}
+
+				this.page.loadData();
+				this.table.refresh();
+			});
+		}
 	}
 
 	createTable(): DataTable {
 		const options = {
 			columns: this.columns.map((c, index) => {
-				let col = new HeaderColumn(index, c, entities.getFieldTitle(this.entity.name, c));
+				let contentType = ContentType.TEXT;
+				const fieldDef = this.entity.getFieldNameByColumn(c);
+				if (fieldDef != null) {
+					contentType = fieldDef.contentType;
+				}
+
+				let col = new HeaderColumn(index, c, entities.getFieldTitle(this.entity.name, c), contentType);
 
 				if (this.hiddenColumns.includes(c)) {
 					col.hideColumn();
@@ -55,12 +97,12 @@ export class TableView extends BaseView {
 
 				return col;
 			}),
-			multiSelect:true,
-			searchable: false,
+			multiSelect:this.multiSelect,
+			searchable: this.enableSearch,
 			columnId:"#UID"
 		};
 
-		const table = new DataTable(this.id, options);
+		const table = new DataTable(this, this.id, options);
 		table.onRowSelected.push(this.onRowSelected.bind(this));
 		table.onRowDeselected.push(this.onRowDeselected.bind(this));
 
@@ -68,6 +110,8 @@ export class TableView extends BaseView {
 	}
 	createHeader(): ConfigTools {
 		this.tools = new ConfigTools(this.id);
+		this.tools.disableOperation(OperationMethod.EDIT);
+		this.tools.disableOperation(OperationMethod.DELETE);
 		
 		return this.tools;
 	}
@@ -92,13 +136,26 @@ export class TableView extends BaseView {
 		}
 	}
 	onRowSelected(row: Row) {
-		this.tools.enableOperation(OperationMethod.EDIT);
-		this.tools.enableOperation(OperationMethod.DELETE);
-		Router.instance.openPreviewWindow(this.entity.name, ViewMode.DETAIL, row.id);
+		sys.selectedRow = row.id;
+
+		if (this.showTools) {
+			this.tools.enableOperation(OperationMethod.EDIT);
+			this.tools.enableOperation(OperationMethod.DELETE);
+		}
+		if (this.isLookup) {
+			Router.instance.lookupWindow.setRowId(row.id);
+		} else {
+			Router.instance.openPreviewWindow(this.entity.name, ViewMode.DETAIL, row.id);
+		}
 	}
 	onRowDeselected(row: Row) {
-		this.tools.disableOperation(OperationMethod.EDIT);
-		this.tools.disableOperation(OperationMethod.DELETE);
-		Router.instance.closePreviewWindow();
+		if (this.showTools) {
+			this.tools.disableOperation(OperationMethod.EDIT);
+			this.tools.disableOperation(OperationMethod.DELETE);
+		}
+
+		if (this.isLookup == false) {
+			Router.instance.closePreviewWindow();
+		}
 	}
 }

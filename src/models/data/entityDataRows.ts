@@ -12,7 +12,7 @@ export class EntityDataRows {
 
 	setDataFromMap(raw: any) {
 		this.rows = [];
-
+		
 		for (let i = 0; i < raw.length; i++) {
 			const row = raw[i];
 			const data = new EntityData(this.context);

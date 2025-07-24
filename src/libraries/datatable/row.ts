@@ -17,7 +17,6 @@ export class Row {
 	}
 	createHtml():JQuery<HTMLElement> {
 		this.element = $(`<tr></tr>`);
-		this.element.addClass("datatable-row");
 		this.element.on("click", this.onClick.bind(this));
 		
 		return this.element;
@@ -31,15 +30,13 @@ export class Row {
 		return el;
 	}
 	onClick(event: JQuery.ClickEvent) {
-		if (this.isSelected) {
+		if (this.isSelected == true) {
 			this.deselect();
 		} else {
 			this.select();
 		}
 	}
 	select() {
-		if (this.isSelected == true) return;
-
 		this.isSelected = true;
 		this.table.selectedRows.forEach(r => {
 			if (r.isSelected) {
@@ -49,6 +46,8 @@ export class Row {
 
 		this.table.selectedRows = [];
 		if (this.element != null) {
+			this.element.addClass("is-selected");
+			
 			if (this.table.multiSelect) {
 				let selector = $(this.element.find(".datatable-cell-value-selector")[0]);
 				selector.prop('checked', true);
@@ -59,11 +58,12 @@ export class Row {
 		this.table.fireRowSelected(this);
 	}
 	deselect() {
-		if (this.isSelected == false) return;
-
 		this.isSelected = false;
+		this.table.selectedRows = [];
 
 		if (this.element != null) {
+			this.element.removeClass("is-selected");
+
 			if (this.table.multiSelect) {
 				let selector = $(this.element.find(".datatable-cell-value-selector")[0]);
 				selector.prop('checked', false);

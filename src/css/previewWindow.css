@@ -1,0 +1,31 @@
+#previewWindow {
+	background-color: rgba(255, 255, 255, 0.01);
+	border:solid;
+	border-width:1px;
+	border-style: dashed;
+	margin-right:12px;
+	margin-top:12px;
+}
+#previewWindow {
+	max-width: 450px;
+	min-width:450px;
+}
+#previewWindow #closeBtn {
+	width:1cm;
+	height:1cm;
+	color:white;
+	float:Right;
+}
+#previewWindow #closeBtn {
+	transition: 0.1s;
+}
+#previewWindow #closeBtn:hover {
+	color:red;
+	rotate: 180deg;
+	transition: 0.25s;
+}
+#closeTab {
+	height:1cm;
+	border-bottom:solid;
+	border-width:1px;
+}

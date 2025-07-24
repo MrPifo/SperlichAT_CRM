@@ -1,103 +1,95 @@
-import fs from 'fs';
-import path from 'path';
-
-// === Konfiguration ===
-const ENTITY_BASE_DIR = path.resolve(process.cwd(), 'src/crm/entities');
-const PROCESS_SUBDIR = 'db';
-const OUTPUT_DIR = path.resolve(process.cwd(), 'src/crm/generated/entities');
-
-function getEntityDirs(baseDir: string): fs.Dirent[] {
-  try {
-    return fs.readdirSync(baseDir, { withFileTypes: true }).filter(d => d.isDirectory());
-  } catch (e) {
-    console.error('[entity-process-plugin] Fehler beim Lesen des Entity-Ordners:', e);
-    return [];
-  }
-}
-
-function findProcessFiles(entityPath: string): string[] {
-  const processDir = path.join(entityPath, PROCESS_SUBDIR);
-  const expectedProcesses = ['fromProcess', 'orderProcess', 'conditionProcess'];
-  const foundProcesses: string[] = [];
-  
-  for (const proc of expectedProcesses) {
-    const filePath = path.join(processDir, `${proc}.ts`);
-    
-    if (!fs.existsSync(filePath)) continue;
-    
-    const content = fs.readFileSync(filePath, 'utf8');
-    
-    // Entferne alle Kommentare vor der Prüfung
-    const cleanContent = content
-      .replace(/\/\*[\s\S]*?\*\//g, '') // Block-Kommentare
-      .replace(/\/\/.*$/gm, '');        // Zeilen-Kommentare
-    
-    if (cleanContent.includes(`export function ${proc}`) || 
-        cleanContent.includes(`export const ${proc} =`)) {
-      foundProcesses.push(proc);
-    }
-  }
-  
-  return foundProcesses;
-}
-
-function buildImportStatements(entityName: string, entityFile: string, processFiles: string[]): string[] {
-  const imports: string[] = [];
-  const relativeEntityImport = path.relative(OUTPUT_DIR, entityFile).replace(/\\/g, '/').replace(/\.ts$/, '');
-  imports.push(`import ${entityName} from '${relativeEntityImport}';`);
-
-  for (const proc of processFiles) {
-    const procFile = path.join(ENTITY_BASE_DIR, entityName, PROCESS_SUBDIR, `${proc}.ts`);
-    const relativeProcImport = path.relative(OUTPUT_DIR, procFile).replace(/\\/g, '/').replace(/\.ts$/, '');
-    imports.push(`import { ${proc} } from '${relativeProcImport}';`);
-  }
-  imports.push('');
-  return imports;
-}
-
-function buildAssignStatements(entityName: string, processFiles: string[]): string[] {
-  return processFiles.map(proc => {
-    const key = proc.replace('Process', '');
-    return `${entityName}.db.${key}Process = ${proc};`;
-  });
-}
-
-function writeCompiledFile(entityName: string, sourceCode: string): void {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-  const outputFile = path.join(OUTPUT_DIR, `${entityName}_compiled.ts`);
-  fs.writeFileSync(outputFile, sourceCode, 'utf8');
-  console.log(`[entity-process-plugin] Generierte Datei: ${outputFile}`);
-}
-export default function entityCompilerPlugin() {
+// vite-plugin-entity-processes.ts
+export function entityProcessesPlugin() {
   return {
-    name: 'entity-compiler',
-    
-    buildStart() {
-      console.log('[entity-compiler] Starte Entity-Kompilierung...');
-      
-      const entityDirs = getEntityDirs(ENTITY_BASE_DIR);
-      
-      for (const dir of entityDirs) {
-        const entityPath = path.join(ENTITY_BASE_DIR, dir.name);
-        const entityFile = path.join(entityPath, `${dir.name}.ts`);
-        
-        if (!fs.existsSync(entityFile)) continue;
-        
-        const processFiles = findProcessFiles(entityPath);
-        if (processFiles.length === 0) continue;
-        
-        const imports = buildImportStatements(dir.name, entityFile, processFiles);
-        const assigns = buildAssignStatements(dir.name, processFiles);
-        
-        const compiledCode = [
-          ...imports,
-          ...assigns,
-          '',
-          `export default ${dir.name};`
-        ].join('\n');
-        
-        writeCompiledFile(dir.name, compiledCode);
+    name: 'entity-processes',
+    transform(code: string, id: string) {
+      // Nur src/core/entities.ts bearbeiten
+      if (!id.endsWith('src/core/entities.ts')) {
+        return null;
       }
+      
+      let modifiedCode = code;
+      
+      // Finde die compile() Schleife
+      const compileLoopRegex = /for\s*\(.*?\)\s*{[^}]*entity\.compile\(\);/s;
+      
+      if (compileLoopRegex.test(modifiedCode)) {
+        modifiedCode = modifiedCode.replace(
+          compileLoopRegex,
+          (match) => {
+            return match.replace(
+              'entity.compile();',
+              `// === ENTITY PROZESSE LADEN ===
+              
+              // 1. DATABASE PROZESSE
+              // Lade alle DB Prozesse aus allen Entity-Ordnern
+              const dbProcesses = import.meta.glob('../entities/*/db/*Process.ts', { eager: true });
+              const relevantDbProcesses = {};
+              
+              // Definiere welche DB Prozess-Typen wir suchen
+              const dbProcessTypes = [
+                'fromProcess',
+                'conditionProcess',
+                'orderProcess'
+              ];
+              
+              // Filtere nur die Prozesse für diese spezifische Entity
+              Object.entries(dbProcesses).forEach(([path, module]) => {
+                // Prüfe ob der Pfad zu dieser Entity gehört
+                if (path.includes(\`/\${entityName}_entity/db/\`)) {
+                  relevantDbProcesses[path] = module;
+                  
+                  // Weise jeden gefundenen Prozess-Typ zu
+                  dbProcessTypes.forEach(processType => {
+                    if (path.endsWith(\`\${processType}.ts\`) && module[processType]) {
+                      entity.db[processType] = module[processType];
+                    }
+                  });
+                }
+              });
+              
+              // 2. FIELD PROZESSE
+              // Lade alle Field Prozesse aus allen Entity-Ordnern
+              const fieldProcesses = import.meta.glob('../entities/*/fields/*/*Process.ts', { eager: true });
+              
+              // Definiere welche Field Prozess-Typen wir suchen
+              const fieldProcessTypes = [
+                'valueProcess',           // Berechnet den Wert
+                'displayValueProcess',    // Formatiert die Anzeige
+                'onValueChangedProcess',  // Reagiert auf Wertänderungen
+                'onValidationProcess',    // Validiert Eingaben
+                'onStateProcess',         // Bestimmt den Feld-Status
+                'titleProcess',           // Dynamischer Titel
+                'colorProcess'            // Dynamische Farbe
+              ];
+              
+              // Gehe durch alle Fields dieser Entity
+              Object.entries(entity.fields).forEach(([fieldName, fieldDef]) => {
+                // Suche nach Prozessen für dieses spezifische Field
+                Object.entries(fieldProcesses).forEach(([path, module]) => {
+                  // Prüfe ob der Pfad zu dieser Entity und diesem Field gehört
+                  if (path.includes(\`/\${entityName}_entity/fields/\${fieldName}/\`)) {
+                    // Weise jeden gefundenen Prozess-Typ zu
+                    fieldProcessTypes.forEach(processType => {
+                      if (path.endsWith(\`\${processType}.ts\`) && module[processType]) {
+                        fieldDef[processType] = module[processType];
+                      }
+                    });
+                  }
+                });
+              });
+              
+              // Rufe compile mit den DB Prozessen auf
+              entity.compile({ processes: relevantDbProcesses });`
+            );
+          }
+        );
+      }
+      
+      return {
+        code: modifiedCode,
+        map: null
+      };
     }
   };
 }

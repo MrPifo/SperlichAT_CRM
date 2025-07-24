@@ -1,64 +1,66 @@
-import { ViewMode } from "@/core";
-import { Page } from "@/views";
-import { Router } from "@/router/router";
-import $ from "jquery";
+import { sys, ViewMode } from "@core";
+import { BaseView, Page } from "@views";
 import { GenericFooter } from "@component";
+import $ from "jquery";
+import PreviewWindow from "./previewWindow";
+import { Router } from "@/router/router";
 
 export class PageBuilder {
 
+	previewWindow: PreviewWindow;
+	pageContent: JQuery<HTMLElement>;
 	pageWrapper: JQuery<HTMLElement>;
 	genericFooter!: GenericFooter;
 
 	constructor() {
+		this.previewWindow = Router.instance.previewWindow;
 		this.pageWrapper = $(`#pageWrapper`);
+		this.pageContent = $("#pageContent");
 	}
 
-	buildePage(page: Page, viewMode: ViewMode) {
-		let mainContent = $("#viewContent");
-		let container = this.getContainer();
-		mainContent.empty();
-		mainContent.append(container);
+	buildeFilterPage(page: Page) {
+		const container = this.clearPage();
 		
-		if (viewMode == ViewMode.EDIT || viewMode == ViewMode.NEW) {
-			if (Router.instance.previewWindow.isOpen) {
-				Router.instance.previewWindow.close();
-			}
-			this.pageWrapper.addClass("limitedContainer col-4 col-mx-auto");
+		this.buildViewsInContainer(page, container);
+		this.setPageTitle(page.entity.name);
+		page.loadData();
+	}
+	async buildNewEditPage(page: Page) {
+		const container = this.clearPage();
+		this.pageContent.addClass("limitedContainer");
+		this.buildViewsInContainer(page, container);
+		this.genericFooter = this.getActionFooter(page);
+		this.pageWrapper.append(this.genericFooter.element);
+		this.genericFooter.setLoading(true);
+		
+		if (sys.viewMode == ViewMode.NEW) {
+			//@ts-ignore
+			await page.createNewInstance(sys.currentId);
 		} else {
-			this.pageWrapper.removeClass("limitedContainer col-4 col-mx-auto");
+			await page.loadData();
 		}
 		
-		this.buildViewsInContainer(page, container, viewMode);
-		
-		if (page.isEditMask) {
-			this.genericFooter = this.getActionFooter(page);
-			mainContent.append(this.genericFooter.element);
-		}
+		this.genericFooter.setLoading(false);
 	}
-	buildPreviewPage(page: Page, viewMode: ViewMode) {
-		let viewTab = $("#previewWindow_view");
-		let container = this.getContainer();
-		viewTab.empty();
-		viewTab.append(container);
+	buildPreviewPage(page: Page) {
+		this.previewWindow.clearContent();
 		
-		this.buildViewsInContainer(page, container, viewMode);
+		this.buildViewsInContainer(page, this.previewWindow.content);
 	}
-	private buildViewsInContainer(page: Page, container: JQuery<HTMLElement>, viewMode: ViewMode) {
-		container.addClass("row");
-		
-		page.views.forEach(view => {
+	buildViewsInContainer(page: Page, container: JQuery<HTMLElement>): BaseView[] {
+		const views: BaseView[] = [];
+
+		for (const view of page.views) {
 			let verticalBox = this.getVerticalColumn(view.id);
 			container.append(verticalBox);
-			view.buildView(null, viewMode);
-		});
-	}
-	getContainer() : JQuery<HTMLElement> {
-		let container = $(`<div></div>`);
+			view.buildView(null);
+			views.push(view);
+		}
 
-		return container;
+		return views;
 	}
 	getVerticalColumn(viewId:string): JQuery<HTMLElement> {
-		let col = $(`<div id="${viewId}" class="col s12 frameBorder columns"></div>`);
+		let col = $(`<section id="${viewId}" class="viewBox"></section>`);
 
 		return col;
 	}
@@ -72,8 +74,19 @@ export class PageBuilder {
 		footer.cancelBtn.onClick.addListener((e) => {
 			page.cancelEditMask();
 		});
+		page.genericFooter = footer;
 
 		return footer;
+	}
+	setPageTitle(entity: string) {
+		$('#pageTitle').find(".title").html(entity);
+	}
+	clearPage():JQuery<HTMLElement> {
+		this.pageContent.empty();
+		const container = $(`<div></div>`);
+		this.pageContent.append(container);
+
+		return container;
 	}
 }
 

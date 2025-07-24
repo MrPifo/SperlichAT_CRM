@@ -1,34 +1,11 @@
-body {
-	overflow-y: hidden;
-	background-color: #333;
-	box-sizing: unset;
+html {
+    overflow-y: hidden;   
 }
-.container {
-	padding-top: 0px !important;
-	min-width: 1200px;
-	width:98vw !important;
-	height:100vh !important;
-	padding:8px 16px;
-	overflow: hidden;
-}
-.frameBorder {
-	border:none;
-	border-width: 2px;
-	border-radius: 6px;
-}
-.row {
+#bodyContainer {
 	
 }
-#viewContent {
-    flex: 1;
-    overflow:auto;
-	background-color: #222;
-	height:91vh;
-}
-#previewWindow {
-	max-width: 450px;
-	min-width:450px;
-}
-.gridjs-wrapper {
-	/*height:calc(98vh - 240px) !important;*/
+.material-icons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }

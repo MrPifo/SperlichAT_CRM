@@ -1,50 +1,38 @@
 .datatable {
-	height:85vh;
-	overflow:scroll;
-	white-space:unset !important;
+	
 }
-.datatable-row {
+.datatable row {
+	
+}
+.datatable-row:hover {
 	
 }
 .datatable-cell {
-	width:25%;
-	color:#BBB;
-	border:none !important;
-}
-.datatable-row:hover {
-	background-color: rgba(255, 255, 255, 0.1) !important;
+	vertical-align: middle;
 }
 .datatable-cell-value {
-	user-select: none;
+	user-select:text;
+	height:100%;
 }
 .datatable-column {
-	text-align: left !important;
-	text-align: center;
-	font-size: 1.15em;
-	font-weight: normal;
-	color:#BBB;
+	
 }
 .datatable-cell-selector {
-	width:50px !important;
+	width:30px !important;
 }
 .datatable-cell-selector {
-	align-content: center;
 	
 }
 .datatable-cell-value-selector {
-	width:20px;
-	height:20px;
+	width:14px;
+	height:14px;
 }
 .hideColumn {
 	display:none;
 }
 .datatable-selector {
-	min-width: 60px !important;
-	max-width: 60px !important;
+	
 }
 .datatable-header-column-selector {
-	float: left;
-}
-.table.table-striped tbody tr:nth-of-type(odd) {
-	background-color: rgba(255, 255, 255, 0.04);
+	
 }
