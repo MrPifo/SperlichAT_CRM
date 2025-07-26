@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import path from 'path';
 import { entityProcessesPlugin } from './plugins/entity-compiler';
+import { autoLoadEntitiesPlugin } from './plugins/entity-compiler';
 
 export default defineConfig({
     root: 'src',
@@ -37,6 +38,7 @@ export default defineConfig({
     },
     plugins: [
         entityProcessesPlugin(),
+        autoLoadEntitiesPlugin(),
         handlebars({
             partialDirectory: resolve(__dirname, 'partials'),
             reloadOnPartialChange: true

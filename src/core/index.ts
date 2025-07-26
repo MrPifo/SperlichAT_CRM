@@ -1,10 +1,10 @@
 export { Icons } from './icons';
-export { sys, OperatingState, ViewMode } from "./sys";
+export { sys, OperatingState, ViewMode, State } from "./sys";
+export { local } from './local';
 export { SqlBuilder } from "./sqlbuilder";
 export { entities } from './entities';
 export { selection } from './selection';
 export { utils } from './utils';
 export { db } from './db';
 export type { DynamicValue } from './sqlbuilder';
-export { State } from './sys';
-export { local } from './local';
+export { EntityLoader } from './entityLoader';

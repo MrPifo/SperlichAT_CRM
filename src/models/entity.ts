@@ -1,4 +1,4 @@
-import { entities, ViewMode } from "@core";
+import { entities, local, ViewMode } from "@core";
 import { Page } from "@views";
 import { FieldDefinition, Parameter, Recordcontainer } from "@models";
 import { EntityData, EntityDataRows, ICompileOptions, IConsumer, IFieldParams, IProvider } from "@datamodels";
@@ -97,6 +97,17 @@ export class Entity {
 		
 		return columns;
 	}
+	getColumnsByFieldNames(fields: string[]): string[] {
+		let columns:string[] = [];
+
+		for (const [fieldName, field] of Object.entries(this.fields)) {
+			if (field.isColumn() && fields.includes(fieldName)) {
+				columns.push(field.column());
+			}
+		}
+		
+		return columns;
+	}
 	getColumnsAsString(): string[] {
 		let columns:string[] = [];
 
@@ -136,7 +147,6 @@ export class Entity {
 		let field: FieldDefinition|null = null;
 
 		for (let key in this.fields) {
-			console.log(key);
 			const fieldDefinition:FieldDefinition = this.fields[key];
 
 			if (fieldDefinition?.primaryKey == true) {
@@ -172,20 +182,14 @@ export class Entity {
 		return this.name.replace('_entity', '');
 	}
 
-	async requestRows(params?: Record<string, any>): Promise<EntityDataRows> {
-		if (params != null) {
-			Object.keys(params).forEach(param => {
-				this.setParameterValue(param, params[param]);
-			});
-		}
-
+	async requestRows(): Promise<EntityDataRows> {
 		const sql = this.transpileQuery();
 		this.resetParameters();
 		const raw = await api.requestFromDB({
 			asMap: true,
 			sql:sql
 		});
-		
+
 		const data: EntityDataRows = new EntityDataRows(this.name);
 		data.setDataFromMap(raw["data"]["rows"]);
 
@@ -228,25 +232,36 @@ export class Entity {
 			}
 		}
 	}
-	transpileQuery():string {
+	transpileQuery(options?:IEntityQueryOptions):string {
 		let db = this.db;
 		let builder = this.db.sqlBuilder.copy();
+
+		if (options != null) {
+			if (options.params != null) {
+				for (const key in options.params) {
+					const param = options.params[key];
+					local.setParameter(param.name, param.getValue());
+				}
+			}
+		}
 
 		if (db.fromProcess != null) {
 			builder = db.fromProcess(builder);
 		}
 		
 		// Select die Spalten direkt nach dem FROM
-		if (builder) {
+		if (options != null && options.fields != null) {
+			builder = builder.select(options.fields);
+		} else if (builder) {
 			builder = builder.select(this.getColumnsAsString());
 		}
 		
 		if (db.conditionProcess != null) {
 			builder = db.conditionProcess(builder);
 		}
-		if (this.getParameterValue("singleRowId") != undefined) {
+		if (local.hasParameter("singleRowId")) {
 			//@ts-ignore
-			builder.where(this.db.primaryKeyColumn, this.getParameterValue("singleRowId"));
+			builder.where(this.db.primaryKeyColumn, local.getParameterValue("singleRowId"));
 		}
 		
 		if (db.orderProcess != null) {
@@ -254,6 +269,8 @@ export class Entity {
 		}
 		
 		const sqlStatement = builder.toString();
+		local.clear();
+		
 		return sqlStatement;
 	}
 	getPageByViewMode(viewMode:ViewMode):Page | null {
@@ -293,4 +310,10 @@ export class Entity {
 				break;
 		}
 	}
+}
+export interface IEntityQueryOptions {
+
+	fields?: string[];
+	params?: Parameter[];
+
 }

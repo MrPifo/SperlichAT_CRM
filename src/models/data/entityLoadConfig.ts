@@ -4,7 +4,7 @@ import { entities } from "@/core";
 
 export class EntityLoadConfig {
 
-	context: string;
+	/*context: string;
 	params: Parameter[];
 
 	constructor(context: string) {
@@ -29,5 +29,5 @@ export class EntityLoadConfig {
 		const rows:EntityDataRows = await entity.requestRows();
 
 		return rows;
-	}
+	}*/
 }

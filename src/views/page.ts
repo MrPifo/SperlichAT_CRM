@@ -33,7 +33,7 @@ export class Page {
 		this.rowId = id;
 	}
 
-	async createNewInstance(id:string) {
+	async createNewInstance(id: string) {
 		for (let view of this.views) {
 			await view.loadData(id);	
 		}

@@ -5,6 +5,7 @@ export { DateRenderer } from './fieldrender/dateRenderer.ts';
 export { IconRenderer } from './fieldrender/iconRenderer.ts';
 export { ImageRenderer } from './fieldrender/imageRenderer.ts';
 export { NumberRenderer } from './fieldrender/numberRenderer.ts';
+export { DropdownRenderer } from './fieldrender/dropdownRenderer.ts';
 export { SelectorRenderer } from './fieldrender/selectorRenderer.ts';
 export { PreviewTab } from './previewTab.ts';
 export { Button } from './button.ts';

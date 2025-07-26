@@ -54,5 +54,6 @@ export enum ContentType {
 	DATETIME = 3,
 	BOOLEAN = 4,
 	ICON = 5,
-	IMAGE = 6
+	IMAGE = 6,
+	KEYWORD = 7
 }

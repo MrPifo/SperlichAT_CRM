@@ -32,3 +32,33 @@
 .fieldGeneric {
 	margin-bottom: 0.3cm !important;
 }
+.field-dropdown {
+	max-height: 25em;
+	position: absolute;
+	margin-left:11em;
+	width:20em;
+	z-index:1;
+	background-color: var(--color-surface);
+	border-radius: 6px;
+	border:solid;
+	border-style:dashed;
+	border-width:1px;
+	border-color:var(--color-primary-light);
+	box-shadow: 0px 0px 32px rgba(0, 0, 0, 0.75);
+	overflow-y: scroll;
+}
+.field-dropdown li {
+	border-radius: 6px;
+	font-size:1em;
+	padding:8px 24px;
+	display: flex;
+    align-items: center;
+	user-select: none;
+	transition: 0.1s;
+}
+.field-dropdown li:hover {
+	color:var(--color-primary-light);
+	background-color: rgba(255,255,255,0.1);
+	cursor: pointer;
+	transition: 0.1s;
+}

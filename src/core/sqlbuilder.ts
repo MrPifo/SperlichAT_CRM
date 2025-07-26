@@ -243,7 +243,7 @@ export class SqlBuilder {
 
     toString():string {
         let sql: string = "";
-
+        
         sql += `SELECT ${this.selects.map(s => s.resolve()).join(",")} `;
         sql += `FROM ${this.fromSrc} `;
 

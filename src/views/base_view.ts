@@ -1,8 +1,8 @@
-import { EntityData, EntityDataRows, EntityLoadConfig } from "@datamodels";
+import { EntityData, EntityDataRows } from "@datamodels";
 import { Page } from "@views";
 import { BaseViewConfig } from "@datamodels";
-import { Entity, Field } from "@models";
-import { entities } from "@/core";
+import { Entity, Field, Parameter } from "@models";
+import { entities, EntityLoader } from "@core";
 
 export abstract class BaseView {
 
@@ -15,6 +15,7 @@ export abstract class BaseView {
 	config: BaseViewConfig;
 	context!: string;
 	parentView: BaseView | null = null;
+	columns!: string[];
 	//@ts-ignore
 	rows: EntityDataRows = null;
 	//@ts-ignore
@@ -33,14 +34,18 @@ export abstract class BaseView {
 	abstract setData(data: EntityDataRows | EntityData): void;
 	async loadData(id:string|null): Promise<void> {
 		this.rowId = id;
+		let loadColumns: string[] = entities.getEntity(this.context).getColumnsByFieldNames(this.columns as string[]);
+		
+		if (this.rowId != null) {
+			const data = await new EntityLoader(this.entity.name).parameters([
+				new Parameter("singleRowId", this.rowId)
+			]).fields(loadColumns).getRow();
 
-		if (this.rowId == null) {
-			this.rows = await this.entity.requestRows()
+			this.row = data;
 		} else {
-			new EntityLoadConfig(this.entity.name).setParams({
-				"singleRowId":this.rowId
-			});
-			this.row = await this.entity.requestRow(this.rowId);
+			const data = await new EntityLoader(this.entity.name).fields(loadColumns).getRows();
+
+			this.rows = data;
 		}
 	}
 	lockMask(state: boolean) {

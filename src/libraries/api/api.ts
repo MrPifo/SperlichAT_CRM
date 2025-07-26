@@ -15,11 +15,14 @@ export const api = {
 		if (config === undefined) {
 			config = {};
 		}
-		if (config?.asMap == undefined) {
+		if (config.asMap == undefined) {
 			config.asMap = false;
 		}
 		if (config.sql != null) {
 			config.sql = this.encodeSQL(config.sql);
+		}
+		if (config.singleRow == undefined) {
+			config.singleRow = false;
 		}
 		
 		let result = await this.request(this.paths.GENERIC_SQL, config);
@@ -67,7 +70,8 @@ export const api = {
 					response = await axios.get(url.toString(), config);
 					break;
 			}
-		} catch (error:any) {
+		} catch (error: any) {
+			console.error(`API-Request error occured. \n ${error.response.data.errorMessage}`);
 			throw error.response.data.errorMessage;
 		}
 

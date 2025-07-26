@@ -11,6 +11,6 @@ export interface IFieldParams {
 	contentType?: ContentType;
 	customDateFormat?: "",
 	showRawValueInEditMask?: boolean,
-	consumer?:string|IConsumer
+	consumer?: string | IConsumer
 
 }

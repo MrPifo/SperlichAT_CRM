@@ -5,7 +5,7 @@ export { GenericOptions } from "./generic_options";
 export type { IFieldParams } from "./IFieldParams";
 export { SelectRow } from "./selectionRow";
 export { EntityDataRows } from './entityDataRows';
-export { EntityLoadConfig } from './entityLoadConfig';
+//export { EntityLoadConfig } from './entityLoadConfig';
 export type { IConsumer } from './IConsumer';
 export type { IProvider } from './IProvider';
 export { Value } from './value';

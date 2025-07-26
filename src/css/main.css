@@ -9,3 +9,6 @@ html {
     align-items: center !important;
     justify-content: center !important;
 }
+.choices[data-type="select-one"] .choices__list--dropdown {
+    pointer-events: auto !important;
+}

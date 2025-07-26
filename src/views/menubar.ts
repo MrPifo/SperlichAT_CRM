@@ -22,18 +22,16 @@ export class MenuBar {
 			let menuList = $(`
 				<ul class="menu-list"></ul>`
 			);
-			for (let i = 0; i < menuContexts.length; i++) {
-				let entry = menuContexts[i];
-
-				if (entities.hasEntity(entry.entity)) {
-					const entity = entities.getEntity(entry.entity);
+			for (const menu of menuContexts) {
+				if (entities.hasEntity(menu.entity)) {
+					const entity = entities.getEntity(menu.entity);
 					let item = $(`<li><a href="/crm/${entity.name}/filter">${entity.title}</a></li>`);
 					//item.attr("href", `/crm/${entity.name}/filter`);
 					menuList.append(item);
-				} else if (entry.entity == "Home") {
-					let item = $(`<li><a href="/crm/">${entry.entity}</a></li>`);
+				} else if (menu.entity == "Home") {
+					let item = $(`<li><a href="/crm/">${menu.entity}</a></li>`);
 					menuList.append(item);
-				}
+				}	
 			}
 
 			this.containerHtml.append(menuLabelHtml);
@@ -51,6 +49,9 @@ export class MenuBar {
 		}];
 		menus["Finanzen"] = [{
 			entity: "Bill"
+		}];
+		menus["System"] = [{
+			entity:"Keyword"
 		}];
 		
 		return menus;

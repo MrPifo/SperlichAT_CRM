@@ -113,9 +113,9 @@ export class DB {
 
         return null;
     }
-    async row(sql:string): Promise<string[]> {
+    async row(sql:string, asMap?:boolean): Promise<string[]> {
         const result = await api.executeDB(sql, {
-            asMap:false
+            asMap:asMap ?? false
         });
         const rows = result["data"]["rows"];
 

@@ -1,5 +1,5 @@
 import { ContentType, Field } from "@models";
-import { OperatingState } from "@core";
+import { OperatingState, utils } from "@core";
 import $ from 'jquery';
 import { BaseRenderer, IRenderParams } from "@component";
 import { State, sys } from "@core";
@@ -20,17 +20,17 @@ export class FieldRenderer extends BaseRenderer {
 		this.rowHtml = $(`<div class="field is-horizontal"></div>`);
 		
 		if (this.hideLabel == false) {
-			this.labelHtml = $(`<label for="${this.fieldInfo?.name}" class="field-label is-normal">${this.fieldInfo?.getTitle()}</label>`);
+			this.labelHtml = $(`<label for="${this.renderID}" class="field-label is-normal">${this.fieldInfo?.getTitle()}</label>`);
 			this.rowHtml.append(this.labelHtml);
 		}
         
 		if (this.noInputElement == true) {
 			this.rowHtml.addClass('fieldReadOnlyValue');
-			this.valueHtml = $(`<span class="field"></span>`);
+			this.valueHtml = $(`<span id="${this.renderID}" class="field"></span>`);
 			this.valueHtml.css("color", this.field?.color ?? '#FFF');
 		} else {
 			this.rowHtml.addClass('fieldEditValue');
-			this.valueHtml = $(`<input id="${this.fieldInfo?.name}" class="input field" placeholder="${this.fieldInfo?.getTitle()}"></input>`);
+			this.valueHtml = $(`<input id="${this.renderID}" class="input field" placeholder="${this.fieldInfo?.getTitle()}"></input>`);
 		}
 
 		this.addFieldClass(this.viewType);

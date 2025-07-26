@@ -49,11 +49,9 @@ export default class LookupWindow {
 		const input = parent.find('input');
 		
 		input.on('focusout', function(e) {
-			setTimeout(() => {
-				if (!self.window.is(':hover') && !$(document.activeElement).closest('#lookupWindow').length) {
+			if (!self.window.is(':hover') && !$(document.activeElement).closest('#lookupWindow').length) {
 					self.close();
 				}
-			}, 100);
 		});
 		
 		this.window.on('mousedown', function(e) {
@@ -72,7 +70,7 @@ export default class LookupWindow {
 		if (this.attachedParent != null) {
 			this.attachedParent.css("position", "");	
 		}
-
+		
 		this.window.appendTo(document.body);
 		this.isOpen = false;
 		this.hide();

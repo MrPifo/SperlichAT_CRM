@@ -1,5 +1,5 @@
-import { entities, State, local, sys, OperatingState } from "@core";
-import { BaseRenderer, DateRenderer, FieldRenderer, IconRenderer, ImageRenderer, IRenderParams, NumberRenderer } from "@component";
+import { entities, State, local, sys, OperatingState, EntityLoader } from "@core";
+import { BaseRenderer, DateRenderer, DropdownRenderer, FieldRenderer, IconRenderer, ImageRenderer, IRenderParams, NumberRenderer } from "@component";
 import { ContentType, FieldDefinition } from "@models";
 import { IConsumer, Value } from "./data";
 import dayjs from "dayjs";
@@ -68,6 +68,9 @@ export class Field {
 			case ContentType.IMAGE:
 				this.renderer = new ImageRenderer(this, parent, params ?? {});
 				break;
+			case ContentType.KEYWORD:
+				this.renderer = new DropdownRenderer(this, parent, params ?? {});
+				break;
 		}
 
 		if (sys.operatingState == OperatingState.NEW || sys.operatingState == OperatingState.EDIT) {
@@ -100,7 +103,7 @@ export class Field {
     
 	async setValueFromRowId(context: string, rowId: string) {
 		Router.instance.pageBuilder.genericFooter?.lock(true);
-		const data = await entities.getEntity(context).requestRow(rowId);
+		const data = await new EntityLoader(context).uuid(rowId).getRow();
 		await this.setValue(data.uuid, false);
 		Router.instance.pageBuilder.genericFooter?.unlock(false);
 	}

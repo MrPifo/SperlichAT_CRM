@@ -10,7 +10,6 @@ import { ContentType } from "@models";
 
 export class TableView extends BaseView {
 
-	columns: string[];
 	hiddenColumns: string[] = [];
 	table!: DataTable;
 	config: TableOptions;
@@ -43,7 +42,7 @@ export class TableView extends BaseView {
 	}
 	async loadData(id:string|null): Promise<void> {
 		await super.loadData(id);
-
+		
 		this.table.setData(this.rows.getDataByColumns(this.columns));
 		this.table.refresh();
 	}

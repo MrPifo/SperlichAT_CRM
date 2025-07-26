@@ -1,5 +1,5 @@
 import { ContentType, Field, FieldDefinition } from "@models";
-import { State } from "@core";
+import { State, utils } from "@core";
 import { Event } from "@libraries";
 import $ from 'jquery';
 import { IRenderParams } from "./IRendererParams";
@@ -8,6 +8,7 @@ import { ViewType } from "@views";
 export abstract class BaseRenderer {
 
 	// @ts-ignore
+	public renderID: string;
 	public field?: Field;
 	public fieldInfo?: FieldDefinition;
 
@@ -43,6 +44,7 @@ export abstract class BaseRenderer {
 			this.contentType = params.contentType ?? ContentType.TEXT;
 		}
 		
+		this.renderID = "field-" + utils.getUUID();
 		this.viewType = params.viewType ?? ViewType.None;
 		this.hideLabel = params.hideLabel ?? false;
 		this.noInputElement = params.noInputElement ?? false;

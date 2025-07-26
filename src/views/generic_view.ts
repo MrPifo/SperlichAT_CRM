@@ -8,7 +8,6 @@ export class GenericView extends BaseView {
 
     container!: JQuery<HTMLElement>;
     headerBar!: JQuery<HTMLElement>;
-    columns?: string[];
     table!: JQuery<HTMLElement>;
     form!: JQuery<HTMLElement>;
     viewMode!: ViewMode;
