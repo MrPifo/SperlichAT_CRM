@@ -78,11 +78,13 @@ export class DataTable {
 			await Promise.all(setValuePromises);
 		}
 		
+		const setValuePromises:any = [];
 		for (const row of this.rows) {
 			for (const cell of row.cells) {
-				await cell.setValue(cell.value);
+				setValuePromises.push(cell.setValue(cell.value));
 			}
 		}
+		await Promise.all(setValuePromises);
 	}
 	renderHeader() {
 		this.headerHtml.empty();

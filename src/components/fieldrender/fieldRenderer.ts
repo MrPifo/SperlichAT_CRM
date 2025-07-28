@@ -7,7 +7,7 @@ import { ViewType } from "@views";
 
 export class FieldRenderer extends BaseRenderer {
 
-	constructor(field: Field, parentElement:JQuery<HTMLElement>, params:IRenderParams) {
+	constructor(field: Field, parentElement: JQuery<HTMLElement>, params: IRenderParams) {
 		super(field, parentElement, params);
 	}
 	createRenderer() {
@@ -18,12 +18,12 @@ export class FieldRenderer extends BaseRenderer {
 	}
 	createHtml() {
 		this.rowHtml = $(`<div class="field is-horizontal"></div>`);
-		
+
 		if (this.hideLabel == false) {
 			this.labelHtml = $(`<label for="${this.renderID}" class="field-label is-normal">${this.fieldInfo?.getTitle()}</label>`);
 			this.rowHtml.append(this.labelHtml);
 		}
-        
+
 		if (this.noInputElement == true) {
 			this.rowHtml.addClass('fieldReadOnlyValue');
 			this.valueHtml = $(`<span id="${this.renderID}" class="field"></span>`);
@@ -57,19 +57,23 @@ export class FieldRenderer extends BaseRenderer {
 		}
 	}
 	setDisplayValue(value: any | null) {
-		const displayText = value == null ? "" : value.toString();
+		this.storedValue = value;
 
-		if (this.noInputElement == true) {
-			this.valueHtml?.html(displayText);
-		} else {
-			this.valueHtml?.val(displayText);
+		if (this.isLoading == false) {
+			const displayText = value == null ? "" : value.toString();
+
+			if (this.noInputElement == true) {
+				this.valueHtml?.html(displayText);
+			} else {
+				this.valueHtml?.val(displayText);
+			}
 		}
 	}
 	setState(state: State): void {
 		if (sys.operatingState == OperatingState.VIEW) {
 			state = State.READONLY;
 		}
-		
+
 		this.state = state;
 
 		if (this.isLocked == true) {
@@ -83,12 +87,12 @@ export class FieldRenderer extends BaseRenderer {
 		switch (state) {
 			case State.AUTO:
 			case State.EDIT:
-            	this.valueHtml.addClass("editmode");
+				this.valueHtml.addClass("editmode");
 				break;
 			case State.READONLY:
 			case State.DISABLED:
 				this.valueHtml.prop("disabled", true);
-            	this.valueHtml.addClass("readonly");
+				this.valueHtml.addClass("readonly");
 				break;
 			case State.INVISIBLE:
 				this.hide();
@@ -99,7 +103,7 @@ export class FieldRenderer extends BaseRenderer {
 			this.hide();
 		}
 	}
-	setColor(color: string|null): void {
+	setColor(color: string | null): void {
 		if (this.noInputElement == true) {
 			this.valueHtml.css("color", color ?? '#FFF');
 		}

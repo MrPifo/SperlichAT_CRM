@@ -19,6 +19,8 @@ export abstract class BaseRenderer {
 	valueHtml!: JQuery<HTMLElement>;
 
 	// Properties
+	storedValue: any;
+	isLoading: boolean = false;
 	isHidden: boolean = false;
 	isLocked: boolean = false;
 	state: State = State.AUTO;
@@ -69,6 +71,33 @@ export abstract class BaseRenderer {
 	abstract setColor(color: string | null): void;
 	abstract hide(): void;
 	abstract show(): void;
+	setLoading(state: boolean): void {
+		if (this.isLoading == false && state == true) {
+			this.isLoading = true;
+
+			if (this.noInputElement) {
+				this.storedValue = this.valueHtml.html();
+				this.valueHtml.html(`
+                <div class="field-loader-symbol lds-dual-ring">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+            `);
+			} else {
+				this.storedValue = this.valueHtml.val();
+				this.valueHtml.val('');
+				this.valueHtml.after(`
+                <div class="loading-overlay">
+                    <div class="field-loader-symbol lds-dual-ring">
+                        <div></div><div></div><div></div><div></div>
+                    </div>
+                </div>
+            `);
+			}
+		} else if(this.isLoading == true && state == false) {
+			this.isLoading = false;
+			this.setDisplayValue(this.storedValue);
+		}
+	}
 
 	onRendererCreated(): void {}
 }

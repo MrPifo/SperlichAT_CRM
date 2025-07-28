@@ -64,7 +64,8 @@ bill_entity.addField("IMPORTDATE", {
 });
 bill_entity.addField("TRANSACTIONTYPE", {
 	title: "Transaktionsart",
-	column:"true"
+	column: "true",
+	contentType:ContentType.KEYWORD
 });
 bill_entity.addField("INCOMESOURCE", {
 	title: "Einnahmequelle",

@@ -27,7 +27,8 @@ export class GenericView extends BaseView {
         this.render();
     }
     setData() {}
-    async loadData(id:string|null): Promise<void> {
+    async loadData(id: string | null): Promise<void> {
+        this.fields.forEach(f => f.setLoading(true));
         await super.loadData(id);
 
         local.fieldMap = {};

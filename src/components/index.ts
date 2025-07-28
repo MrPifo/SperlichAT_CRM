@@ -7,6 +7,7 @@ export { ImageRenderer } from './fieldrender/imageRenderer.ts';
 export { NumberRenderer } from './fieldrender/numberRenderer.ts';
 export { DropdownRenderer } from './fieldrender/dropdownRenderer.ts';
 export { SelectorRenderer } from './fieldrender/selectorRenderer.ts';
+export type { IListValue } from './fieldrender/dropdownRenderer.ts';
 export { PreviewTab } from './previewTab.ts';
 export { Button } from './button.ts';
 export { GenericFooter } from './genericFooter.ts';

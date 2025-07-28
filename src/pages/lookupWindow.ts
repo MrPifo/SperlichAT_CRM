@@ -45,15 +45,6 @@ export default class LookupWindow {
 		this.attachedParent = parent;
 		this.window.appendTo(parent);
 		
-		const self = this;
-		const input = parent.find('input');
-		
-		input.on('focusout', function(e) {
-			if (!self.window.is(':hover') && !$(document.activeElement).closest('#lookupWindow').length) {
-					self.close();
-				}
-		});
-		
 		this.window.on('mousedown', function(e) {
 			e.preventDefault();
 		});

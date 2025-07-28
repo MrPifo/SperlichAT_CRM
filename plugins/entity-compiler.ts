@@ -60,7 +60,8 @@ export function entityProcessesPlugin() {
                 'onValidationProcess',    // Validiert Eingaben
                 'onStateProcess',         // Bestimmt den Feld-Status
                 'titleProcess',           // Dynamischer Titel
-                'colorProcess'            // Dynamische Farbe
+                'colorProcess',            // Dynamische Farbe
+				'dropdownProcess'
               ];
               
               // Gehe durch alle Fields dieser Entity

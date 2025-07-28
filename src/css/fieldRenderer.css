@@ -4,6 +4,9 @@
 	align-content:center;
 	text-shadow: 1px 1px 2px #444;
 }
+.field span {
+	margin-bottom: 0px !important;
+}
 .field label {
 	max-width: 10em;
 }
@@ -36,6 +39,7 @@
 	max-height: 25em;
 	position: absolute;
 	margin-left:11em;
+	margin-top:2.5em;
 	width:20em;
 	z-index:1;
 	background-color: var(--color-surface);

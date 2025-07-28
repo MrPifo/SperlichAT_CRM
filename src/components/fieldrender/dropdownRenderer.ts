@@ -7,6 +7,7 @@ export class DropdownRenderer extends FieldRenderer {
 	public listHtml!: JQuery<HTMLElement>;
     public listValues: IListValue[] = [];
     private instanceRef: DropdownRenderer;
+    private isDropdownOpen: boolean = false;
 
     constructor(field: Field, parentElement:JQuery<HTMLElement>, params:IRenderParams) {
         super(field, parentElement, params);
@@ -22,7 +23,15 @@ export class DropdownRenderer extends FieldRenderer {
             this.rowHtml.append(this.labelHtml);
         }
 
-        this.valueHtml = $(`<input type="text" id="${this.renderID}" class="input field" placeholder="${this.fieldInfo?.getTitle()}">`);
+        if (this.noInputElement == true) {
+			this.rowHtml.addClass('fieldReadOnlyValue');
+			this.valueHtml = $(`<span id="${this.renderID}" class="field"></span>`);
+			this.valueHtml.css("color", this.field?.color ?? '#FFF');
+		} else {
+			this.rowHtml.addClass('fieldEditValue');
+			this.valueHtml = $(`<input type="text" id="${this.renderID}" class="input field" placeholder="${this.fieldInfo?.getTitle()}">`);
+		}
+        
 
         this.addFieldClass(this.viewType);
         this.rowHtml.append(this.valueHtml);
@@ -51,7 +60,10 @@ export class DropdownRenderer extends FieldRenderer {
         });
         
         this.valueHtml.on('focusout', (e) => {
-            instance.hideDropdown();
+            if (instance.isDropdownOpen) {
+                instance.hideDropdown();
+                instance.valueHtml.blur();
+            }
         });
         this.listHtml.on('mousedown', (e) => {
             e.preventDefault();
@@ -67,7 +79,22 @@ export class DropdownRenderer extends FieldRenderer {
 		this.listHtml = $(`<ul class="field-dropdown"></ul>`);
 
 		return this.listHtml;
-	}
+    }
+    setItems(items: IListValue[], autoRefresh:boolean) {
+        if (autoRefresh == null) {
+            autoRefresh = false;
+        }
+
+        this.listValues = [];
+
+        for (let item of items) {
+            this.addItem(item);
+        }
+
+        if (autoRefresh == true) {
+            this.refresh();
+        }
+    }
 	addItem(item: IListValue) {
 		this.listValues.push(item);
 	}
@@ -92,23 +119,29 @@ export class DropdownRenderer extends FieldRenderer {
                 `));
             }
             itemHtml.on('click', function () {
-                //@ts-ignore
-                self.selectItem(this);
+                if (self.isDropdownOpen) {
+                    //@ts-ignore
+                    self.selectItem(this);
+                }
             }.bind(value));
 
 			this.listHtml.append(itemHtml);
 		}
 	}
     selectItem(item: IListValue) {
-        console.log(item);
         this.valueHtml.val(item.value);
+        this.onValueChange.invoke(item.value);
+        this.setDisplayValue(item.text);
         this.hideDropdown();
     }
-	hideDropdown() {
-		this.listHtml.css('display', "none");
+    hideDropdown() {
+        this.isDropdownOpen = false;
+        this.listHtml.css('display', "none");
+        this.instanceRef.valueHtml.blur();
 	}
 
-	showDropdown() {
+    showDropdown() {
+        this.isDropdownOpen = true;
 		this.refresh();
 		this.listHtml.css('display', "");
 	}

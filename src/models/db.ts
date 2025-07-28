@@ -103,12 +103,12 @@ export class DB {
     }
     async cell(sql:string): Promise<string|null> {
         const result = await api.executeDB(sql, {
-
+            asMap:false
         });
         const rows = result["data"]["rows"];
 
         if (rows.length > 0) {
-            return rows[0]["UID"];
+            return rows[0][0];
         }
 
         return null;
@@ -121,6 +121,18 @@ export class DB {
 
         if (rows.length > 0) {
             return rows[0];
+        }
+
+        return [];
+    }
+    async table(sql:string, asMap?:boolean): Promise<string[]> {
+        const result = await api.executeDB(sql, {
+            asMap:asMap ?? false
+        });
+        const rows = result["data"]["rows"];
+
+        if (rows.length > 0) {
+            return rows;
         }
 
         return [];

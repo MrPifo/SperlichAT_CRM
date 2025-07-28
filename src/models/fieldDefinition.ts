@@ -1,3 +1,4 @@
+import { IListValue } from "@/components";
 import { State } from "@core";
 import { IConsumer, IFieldParams, Value } from "@datamodels";
 import tinycolor from "tinycolor2";
@@ -24,7 +25,8 @@ export class FieldDefinition {
 	onValidationProcess?: () => Promise<boolean>;
 	onStateProcess?: () => Promise<State>;
 	titleProcess?: () => Promise<any>;
-	colorProcess?: () => Promise<tinycolor.Instance|string|null>;
+	colorProcess?: () => Promise<tinycolor.Instance | string | null>;
+	dropdownProcess?: () => Promise<IListValue[]>;
 
 	constructor(name: string, params: IFieldParams) {
 		this.name = name;

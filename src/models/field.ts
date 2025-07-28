@@ -1,5 +1,5 @@
 import { entities, State, local, sys, OperatingState, EntityLoader } from "@core";
-import { BaseRenderer, DateRenderer, DropdownRenderer, FieldRenderer, IconRenderer, ImageRenderer, IRenderParams, NumberRenderer } from "@component";
+import { BaseRenderer, DateRenderer, DropdownRenderer, FieldRenderer, IconRenderer, IListValue, ImageRenderer, IRenderParams, NumberRenderer } from "@component";
 import { ContentType, FieldDefinition } from "@models";
 import { IConsumer, Value } from "./data";
 import dayjs from "dayjs";
@@ -22,6 +22,7 @@ export class Field {
 	value: Value;
 	displayValue: Value;
 	color: string = "#FFF";
+	listItems?: IListValue[];
 
 	// states
 	isLocked: boolean = false;
@@ -107,7 +108,8 @@ export class Field {
 		await this.setValue(data.uuid, false);
 		Router.instance.pageBuilder.genericFooter?.unlock(false);
 	}
-	async setValue(value: string | Number | Object | null, dontRecalculate:boolean) {
+	async setValue(value: string | Number | Object | null, dontRecalculate: boolean) {
+		
 		this.setLocal(value);
 		this.value.setValue(value);
 
@@ -116,6 +118,7 @@ export class Field {
 		}
 
 		this.refreshVisuals();
+		
 	}
 	setEmpty(dontRecalculate: boolean) {
 		this.value.setValue(null);
@@ -172,6 +175,7 @@ export class Field {
 		this.renderer?.unlockField();
 	}
 	async recalculate() {
+		this.setLoading(true);
 		if (this.definition.valueProcess != null) {
 			let result = await this.definition.valueProcess();
 			this.value = result == null ? new Value(null) : new Value(result);
@@ -185,6 +189,9 @@ export class Field {
 		}
 		if (this.definition.onValidationProcess != null) {
 			this.isValid = await this.definition.onValidationProcess();
+		}
+		if (this.definition.dropdownProcess != null && this.contentType() == ContentType.KEYWORD) {
+			this.listItems = await this.definition.dropdownProcess();
 		}
 		if (this.definition.onStateProcess != null) {
 			this.setState(await this.definition.onStateProcess());
@@ -200,6 +207,7 @@ export class Field {
 				this.color = colorValue.toHexString();
 			}
 		}
+		this.setLoading(false);
 	}
 	refreshVisuals() {
 		if (this.hasRenderer()) {
@@ -207,6 +215,9 @@ export class Field {
 				this.renderer?.setDisplayValue(this.value.getValueAsString());	
 			} else {
 				this.renderer?.setDisplayValue(this.displayValue.getValueAsString());	
+			}
+			if (this.contentType() == ContentType.KEYWORD && this.listItems != null) {
+				(this.renderer as DropdownRenderer).setItems(this.listItems, true);
 			}
 
 			this.renderer?.setColor(this.color);
@@ -230,6 +241,11 @@ export class Field {
 		if (this.renderer != null) {
 			this.renderer.isHidden = false;
 			this.renderer.show();
+		}
+	}
+	setLoading(state: boolean) {
+		if (this.renderer != null) {
+			this.renderer.setLoading(state);
 		}
 	}
 }
