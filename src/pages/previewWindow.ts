@@ -29,7 +29,7 @@ export default class PreviewWindow {
 		}
 	}
 	open(page: Page, entityName: string, viewMode: ViewMode, id: string) {
-		console.log(`Opening Preview-Tab: ${entityName} in ${viewMode} of ${id}`);
+		//console.log(`Opening Preview-Tab: ${entityName} in ${viewMode} of ${id}`);
 		this.isOpen = true;
 		this.page = page;
 		this.rowId = id;

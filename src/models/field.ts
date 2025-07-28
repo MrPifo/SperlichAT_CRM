@@ -1,7 +1,7 @@
 import { entities, State, local, sys, OperatingState, EntityLoader } from "@core";
 import { BaseRenderer, DateRenderer, DropdownRenderer, FieldRenderer, IconRenderer, IListValue, ImageRenderer, IRenderParams, NumberRenderer } from "@component";
 import { ContentType, FieldDefinition } from "@models";
-import { IConsumer, Value } from "./data";
+import { IConsumer, ProcessType, Value } from "./data";
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import $ from 'jquery';
@@ -19,6 +19,7 @@ export class Field {
 	consumer?: IConsumer|null;
 
 	// data
+	srcValue: Value;
 	value: Value;
 	displayValue: Value;
 	color: string = "#FFF";
@@ -42,6 +43,7 @@ export class Field {
         this.entityName = entityName;
         this.fieldName = fieldName;
 		this.value = new Value(value);
+		this.srcValue = new Value(value);
 		this.displayValue = new Value(null);
 		this.consumer = this.definition.consumer;
 		this.setState(this.definition.state);
@@ -173,6 +175,56 @@ export class Field {
 	unlockField() {
 		this.isLocked = false;
 		this.renderer?.unlockField();
+	}
+	async execute(type: ProcessType) {
+		switch (type) {
+			case ProcessType.VALUE:
+				if (this.definition.valueProcess != null) {
+					const result = await this.definition.valueProcess();
+					this.value = result == null ? new Value(null) : new Value(result);
+				}
+				break;
+			case ProcessType.DISPLAYVALUE:
+				if (this.definition.displayValueProcess != null) {
+					const result = await this.definition.displayValueProcess();
+					this.displayValue = result == null ? new Value(null) : new Value(result);
+				}
+				break;
+			case ProcessType.ONVALUECHANGE:
+				if (this.definition.onValueChangedProcess != null) {
+					await this.definition.onValueChangedProcess(local.oldValue, local.newValue);
+				}
+				break;
+			case ProcessType.ONVALIDATION:
+				if (this.definition.onValidationProcess != null) {
+					this.isValid = await this.definition.onValidationProcess();
+				}
+				break;
+			case ProcessType.DROPDOWN:
+				if (this.definition.dropdownProcess != null && this.contentType() == ContentType.KEYWORD) {
+					this.listItems = await this.definition.dropdownProcess();
+				}
+				break;
+			case ProcessType.ONSTATE:
+				if (this.definition.onStateProcess != null) {
+					const result = await this.definition.onStateProcess();
+					this.setState(result);
+				}
+				break;
+			case ProcessType.COLORPROCESS:
+				if (this.definition.colorProcess != null) {
+					const colorValue = await this.definition.colorProcess();
+
+					if (colorValue == null) {
+						this.color = '#FFF';
+					} else if (typeof colorValue === 'string') {
+						this.color = colorValue;
+					} else {
+						this.color = colorValue.toHexString();
+					}
+				}
+				break;
+		}
 	}
 	async recalculate() {
 		this.setLoading(true);

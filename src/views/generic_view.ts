@@ -1,5 +1,5 @@
 import { BaseView, ViewType } from "@views";
-import { GenericOptions } from "@datamodels";
+import { GenericOptions, ProcessType, ViewData } from "@datamodels";
 import $ from "jquery";
 import { sys, ViewMode, local, OperatingState } from "@core";
 import { Field } from "@models";
@@ -21,17 +21,30 @@ export class GenericView extends BaseView {
 
     buildView(parentView: BaseView): void {
         this.viewMode = sys.viewMode;
-        this.fields = this.columns?.map(c => new Field(this.entity.name, c, this.viewMode)) ?? [];
+        this.pageData = new ViewData(this.context, this);
+        this.pageData.setFieldsFromArray(this.columns);
         this.parentView = parentView;
 		
         this.render();
     }
     setData() {}
     async loadData(id: string | null): Promise<void> {
-        this.fields.forEach(f => f.setLoading(true));
         await super.loadData(id);
 
-        local.fieldMap = {};
+        this.pageData.renderFields(this.form);
+        this.pageData.setFieldLoadingState(true);
+        
+        await this.pageData.processFields(ProcessType.VALUE);
+        await this.pageData.processFields(ProcessType.DISPLAYVALUE);
+        await this.pageData.processFields(ProcessType.ONSTATE);
+        await this.pageData.processFields(ProcessType.ONVALUECHANGE);
+        await this.pageData.processFields(ProcessType.ONVALIDATION);
+        await this.pageData.processFields(ProcessType.COLORPROCESS);
+        await this.pageData.processFields(ProcessType.DROPDOWN);
+        
+        this.pageData.setFieldLoadingState(false);
+        this.pageData.refreshFieldVisuals();
+        /*local.fieldMap = {};
         this.fields.forEach(f => {
             f.setValue(this.row.extractColumn(f.fieldName), true);
             local.fieldMap[f.fieldName] = f;
@@ -44,7 +57,7 @@ export class GenericView extends BaseView {
             } else {
                 f.show();
             }
-        });
+        });*/
     }
     render() {
         this.container = $(`#${this.id}`);

@@ -1,4 +1,6 @@
+export { ProcessType } from './processType';
 export { EntityData } from "./entityData";
+export { ViewData } from './pageData';
 export { BaseViewConfig } from "./view_options";
 export { TableOptions } from "./table_options";
 export { GenericOptions } from "./generic_options";

@@ -21,7 +21,7 @@ export class FieldDefinition {
 	// Processes
 	valueProcess?: () => Promise<any>;
 	displayValueProcess?: () => Promise<any>;
-	onValueChangedProcess?: (oldValue: Value, newValue: Value) => void;
+	onValueChangedProcess?: (oldValue: Value, newValue: Value) => Promise<void>;
 	onValidationProcess?: () => Promise<boolean>;
 	onStateProcess?: () => Promise<State>;
 	titleProcess?: () => Promise<any>;

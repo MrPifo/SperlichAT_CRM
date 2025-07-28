@@ -1,6 +1,6 @@
 import { EntityData, EntityDataRows } from "@datamodels";
 import { Page } from "@views";
-import { BaseViewConfig } from "@datamodels";
+import { BaseViewConfig, ViewData } from "@datamodels";
 import { Entity, Field, Parameter } from "@models";
 import { entities, EntityLoader } from "@core";
 
@@ -20,6 +20,8 @@ export abstract class BaseView {
 	rows: EntityDataRows = null;
 	//@ts-ignore
 	row: EntityData = null;
+	//@ts-ignore
+	pageData: ViewData = null;
 
 	get entity(): Entity {
 		return entities.getEntity(this.context);
@@ -41,7 +43,7 @@ export abstract class BaseView {
 				new Parameter("singleRowId", this.rowId)
 			]).fields(loadColumns).getRow();
 
-			this.row = data;
+			this.pageData.setData(data);
 		} else {
 			const data = await new EntityLoader(this.entity.name).fields(loadColumns).getRows();
 
