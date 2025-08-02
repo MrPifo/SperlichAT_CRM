@@ -65,7 +65,7 @@ previewPage.appendViews(
 		"CATEGORY"
 	], {
 		title:"Schlüsselwort",
-		showTitleBar:true
+		showTitleBar:false
 	})
 );
 lookupPage.appendViews(

@@ -22,7 +22,7 @@ export class GenericView extends BaseView {
     buildView(parentView: BaseView): void {
         this.viewMode = sys.viewMode;
         this.pageData = new ViewData(this.context, this);
-        this.pageData.setFieldsFromArray(this.columns);
+        this.pageData.loadAllFieldsFromEntity();
         this.parentView = parentView;
 		
         this.render();
@@ -44,20 +44,6 @@ export class GenericView extends BaseView {
         
         this.pageData.setFieldLoadingState(false);
         this.pageData.refreshFieldVisuals();
-        /*local.fieldMap = {};
-        this.fields.forEach(f => {
-            f.setValue(this.row.extractColumn(f.fieldName), true);
-            local.fieldMap[f.fieldName] = f;
-        });
-        this.fields.forEach(f => {
-            f.setValue(f.value.value, false);
-
-            if (this.config.hideEmptyFields == true && f.value.isEmpty()) {
-                f.hide();
-            } else {
-                f.show();
-            }
-        });*/
     }
     render() {
         this.container = $(`#${this.id}`);

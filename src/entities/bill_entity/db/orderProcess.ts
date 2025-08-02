@@ -1,5 +1,5 @@
-import { SqlBuilder } from '@core';
+import { ILocal, SqlBuilder } from '@core';
 
-export function orderProcess(query: SqlBuilder) {
+export function orderProcess(local:ILocal, query: SqlBuilder) {
   return query.orderBy("BILL.DATE");
 }

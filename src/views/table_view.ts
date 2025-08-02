@@ -2,7 +2,7 @@ import { EntityData, TableOptions } from "@datamodels";
 import { BaseView } from "@views";
 import { DataTable, HeaderColumn } from "@datatable";
 import $ from 'jquery';
-import { db, entities, sys, ViewMode } from "@core";
+import { db, entities, EntityLoader, sys, ViewMode } from "@core";
 import { Row } from "@datatable";
 import { Router } from "@/router/router";
 import { ConfigTools, OperationMethod } from "@/pages/configTools";
@@ -40,10 +40,8 @@ export class TableView extends BaseView {
 			
 		}, true);
 	}
-	async loadData(id:string|null): Promise<void> {
-		await super.loadData(id);
-		
-		this.table.setData(this.rows.getDataByColumns(this.columns));
+	async loadData(id: string | null): Promise<void> {
+		await this.table.loadData(0);
 		this.table.refresh();
 	}
 	buildView(parentView: BaseView|null): void {
@@ -52,7 +50,7 @@ export class TableView extends BaseView {
 		this.tableHtmlElement = $(`#${this.id}`);
 
 		this.table.render();
-		this.sectionHtml = $('<section class="section" style="padding-top:10px"></section>');
+		this.sectionHtml = $('<section class="section tableView" style="padding-top:10px"></section>');
 		this.sectionHtml.append(this.table.tableContainerHtml);
 		this.tableHtmlElement.append(this.sectionHtml);
 		
@@ -73,8 +71,7 @@ export class TableView extends BaseView {
 					Router.instance.closePreviewWindow();
 				}
 
-				this.page.loadData();
-				this.table.refresh();
+				await this.table.loadData(0);
 			});
 		}
 	}
@@ -101,7 +98,7 @@ export class TableView extends BaseView {
 			columnId:"#UID"
 		};
 
-		const table = new DataTable(this, this.id, options);
+		const table = new DataTable(this, this.context, this.id, options);
 		table.onRowSelected.push(this.onRowSelected.bind(this));
 		table.onRowDeselected.push(this.onRowDeselected.bind(this));
 

@@ -36,19 +36,8 @@ export abstract class BaseView {
 	abstract setData(data: EntityDataRows | EntityData): void;
 	async loadData(id:string|null): Promise<void> {
 		this.rowId = id;
-		let loadColumns: string[] = entities.getEntity(this.context).getColumnsByFieldNames(this.columns as string[]);
-		
-		if (this.rowId != null) {
-			const data = await new EntityLoader(this.entity.name).parameters([
-				new Parameter("singleRowId", this.rowId)
-			]).fields(loadColumns).getRow();
-
-			this.pageData.setData(data);
-		} else {
-			const data = await new EntityLoader(this.entity.name).fields(loadColumns).getRows();
-
-			this.rows = data;
-		}
+		this.pageData.uuid = id;
+		await this.pageData.loadData();
 	}
 	lockMask(state: boolean) {
 		this.fields.forEach(f => {

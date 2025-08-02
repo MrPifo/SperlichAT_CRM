@@ -1,4 +1,4 @@
-import { SqlBuilder } from "@core";
+import { ILocal, SqlBuilder } from "@core";
 
 export class Recordcontainer {
 
@@ -6,9 +6,9 @@ export class Recordcontainer {
     primaryKeyColumn:string;
 	sqlBuilder: SqlBuilder;
 
-    fromProcess?: (sqlBuilder: SqlBuilder) => SqlBuilder;
-    conditionProcess?: (sqlBuilder: SqlBuilder) => SqlBuilder;
-    orderProcess?: (sqlBuilder: SqlBuilder) => SqlBuilder;
+    fromProcess?: (local:ILocal, sqlBuilder: SqlBuilder) => SqlBuilder;
+    conditionProcess?: (local:ILocal, sqlBuilder: SqlBuilder) => SqlBuilder;
+    orderProcess?: (local:ILocal, sqlBuilder: SqlBuilder) => SqlBuilder;
 
     constructor(tableName: string, primaryKeyColumn: string) {
         this.table = tableName;

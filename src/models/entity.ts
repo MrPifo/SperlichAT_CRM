@@ -1,4 +1,4 @@
-import { entities, local, ViewMode } from "@core";
+import { buildLocal, entities, SqlBuilder, ViewMode } from "@core";
 import { Page } from "@views";
 import { FieldDefinition, Parameter, Recordcontainer } from "@models";
 import { EntityData, EntityDataRows, ICompileOptions, IConsumer, IFieldParams, IProvider } from "@datamodels";
@@ -232,9 +232,11 @@ export class Entity {
 			}
 		}
 	}
-	transpileQuery(options?:IEntityQueryOptions):string {
+	transpileQuery(options?:IEntityQueryOptions):string|SqlBuilder {
 		let db = this.db;
 		let builder = this.db.sqlBuilder.copy();
+		const returnAsBuilder = options == null ? false : options.returnAsBuilder;
+		const local = buildLocal();
 
 		if (options != null) {
 			if (options.params != null) {
@@ -246,7 +248,7 @@ export class Entity {
 		}
 
 		if (db.fromProcess != null) {
-			builder = db.fromProcess(builder);
+			builder = db.fromProcess(local, builder);
 		}
 		
 		// Select die Spalten direkt nach dem FROM
@@ -257,7 +259,7 @@ export class Entity {
 		}
 		
 		if (db.conditionProcess != null) {
-			builder = db.conditionProcess(builder);
+			builder = db.conditionProcess(local, builder);
 		}
 		if (local.hasParameter("singleRowId")) {
 			//@ts-ignore
@@ -265,11 +267,14 @@ export class Entity {
 		}
 		
 		if (db.orderProcess != null) {
-			builder = db.orderProcess(builder);
+			builder = db.orderProcess(local, builder);
 		}
 		
+		if (returnAsBuilder == true) {
+			return builder;
+		}
+
 		const sqlStatement = builder.toString();
-		local.clear();
 		
 		return sqlStatement;
 	}
@@ -315,5 +320,6 @@ export interface IEntityQueryOptions {
 
 	fields?: string[];
 	params?: Parameter[];
+	returnAsBuilder?: boolean;
 
 }

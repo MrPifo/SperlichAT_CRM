@@ -1,5 +1,23 @@
-.datatable {
-	
+.tableView {
+	height:85vh;
+	overflow-y: scroll;
+}
+.datatable thead th { 
+	position: sticky; 
+	top: -20px;
+	height:60px;
+	vertical-align: middle;
+	background-color: var(--color-surface);
+}
+.datatable tfoot td { 
+	position: sticky; 
+	bottom:-50px;
+	height:60px;
+	vertical-align: middle;
+	background-color: var(--color-surface);
+}
+tfoot {
+	width:100% !important;
 }
 .datatable row {
 	

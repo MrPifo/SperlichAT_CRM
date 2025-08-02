@@ -36,7 +36,7 @@ export class Button {
 				this.config.existingElement.attr('id', this.id);
 			}
 		} else {
-			this.button = $('<button></button>');
+			this.button = $('<button style="z-index:2"></button>');
 			this.icon = $('<span class="material-icons"></span>');
 			this.button.attr('id', this.id);
 		}
@@ -64,10 +64,10 @@ export class Button {
 			this.button.prepend(this.icon);
 		}
 
-		this.button.on('click', (e) => {
+		this.button[0].onclick = (e) => {
 			//@ts-ignore
 			this.onClick.invoke(e as MouseEvent);
-		});
+		};
 		
 		return this.button;
 	}

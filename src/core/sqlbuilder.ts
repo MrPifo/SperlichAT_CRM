@@ -18,6 +18,7 @@ export class SqlBuilder {
     conditions: IExpression[] = [];
     orderBys: OrderExpression[] = [];
     maxRows?: number;
+    offsetRows?: number;
 
     constructor() {
         
@@ -119,6 +120,11 @@ export class SqlBuilder {
     
     limit(maxRows: number) : SqlBuilder {
         this.maxRows = maxRows;
+
+        return this;
+    }
+    offset(amount: number): SqlBuilder {
+        this.offsetRows = amount;
 
         return this;
     }
@@ -231,7 +237,7 @@ export class SqlBuilder {
         return `DELETE FROM ${tableName} ${whereClause}`.trim();
     }
 
-    async table(asMap?:boolean): Promise<any> {
+    async table(asMap?:boolean): Promise<any[][]> {
         let result = await api.requestFromDB({
             sql: this.toString(),
             singleRow: false,
@@ -255,6 +261,10 @@ export class SqlBuilder {
         }
         if (this.maxRows != null) {
             sql += `LIMIT ${this.maxRows} `;
+
+            if (this.offsetRows != null) {
+                sql += `OFFSET ${this.offsetRows} `;
+            }
         }
 
         return sql;

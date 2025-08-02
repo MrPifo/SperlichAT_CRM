@@ -9,33 +9,23 @@ export class Cell {
 
 	element?: JQuery<HTMLElement>;
 	column: string;
-	value: string;
 	contentType?: ContentType;
 	row!: Row;
 	renderer!: BaseRenderer;
-	field?: Field;
+	field: Field;
 
 	private hidden: boolean = false;
 
-	constructor(entityName: string, column: string, value: any, contentType: ContentType) {
-		const entity = entities.getEntity(entityName);
-		let relatedEntityField = entity.getFieldNameByColumn(column);
-
-		if (relatedEntityField == null) {
-			relatedEntityField = entity.getField(column);
-		}
-		if (relatedEntityField != null) {
-			this.field = new Field(entity.name, relatedEntityField.name);
-		}
-		
-		this.column = column;
-		this.value = value;
-		this.contentType = contentType;
+	constructor(field:Field) {
+		this.field = field;
+		this.column = field.fieldName;
+		this.contentType = field.contentType();
 	}
 	createHtml(): JQuery<HTMLElement> {
-		this.element = $(`<td ></td>`);
+		this.element = $(`<td></td>`);
 		this.element.addClass("datatable-cell");
 		this.element.addClass("is-vcentered");
+		this.element.addClass(this.field?.fieldName);
 
 		if (this.field != null) {
 			this.renderer = this.field?.createRenderer(this.element, {
@@ -61,7 +51,6 @@ export class Cell {
 	}
 	async setValue(value: any) {
 		await this.field?.setValue(this.value, true);
-		this.field?.setLocal(value);
 		await this.field?.recalculate();
 		this.field?.refreshVisuals();
 	}

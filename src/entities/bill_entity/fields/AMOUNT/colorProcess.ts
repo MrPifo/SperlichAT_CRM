@@ -1,7 +1,7 @@
-import { local } from "@core";
+import { ILocal } from "@core";
 import tinycolor from "tinycolor2";
 
-export function colorProcess(): tinycolor.Instance {
+export function colorProcess(local:ILocal): tinycolor.Instance {
 	const amount = Number(local.getValue('AMOUNT'));
 
 	if (amount >= 0) {

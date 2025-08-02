@@ -1,13 +1,13 @@
-import { entities, State, local, sys, OperatingState, EntityLoader } from "@core";
-import { BaseRenderer, DateRenderer, DropdownRenderer, FieldRenderer, IconRenderer, IListValue, ImageRenderer, IRenderParams, NumberRenderer } from "@component";
+import { entities, State, buildLocal, sys, OperatingState, EntityLoader, ILocal } from "@core";
+import { BaseRenderer, DateRenderer, DropdownRenderer, FieldRenderer, IconRenderer, IListValue, ImageRenderer, IRenderParams, NumberRenderer, SelectorRenderer } from "@component";
 import { ContentType, FieldDefinition } from "@models";
 import { IConsumer, ProcessType, Value } from "./data";
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import $ from 'jquery';
 import { ViewType } from "@views";
 import LookupWindow from "@/pages/lookupWindow";
 import { Router } from "@/router/router";
+import $ from 'jquery';
 
 export class Field {
 
@@ -26,6 +26,8 @@ export class Field {
 	listItems?: IListValue[];
 
 	// states
+	isPassive: boolean = false;		// Is loaded, but no Renderer is created
+	isDataField: boolean = false;	// Calculated Field with no database column
 	isLocked: boolean = false;
 	isValid: boolean = true;
 	state!: State;
@@ -39,13 +41,19 @@ export class Field {
     constructor(entityName: string, fieldName: string);
 	constructor(entityName: string, fieldName: string, value?: string | Number | Object | null);
 	constructor(entityName: string, fieldName: string, value?: string | Number | Object | null) {
-        this.definition = entities.getEntity(entityName).getField(fieldName);
+		this.definition = entities.getEntity(entityName).getField(fieldName);
+		
+		if (this.definition == null) {
+			this.definition = this.getSpecialDefinition(fieldName);
+		}
+
         this.entityName = entityName;
         this.fieldName = fieldName;
 		this.value = new Value(value);
 		this.srcValue = new Value(value);
 		this.displayValue = new Value(null);
 		this.consumer = this.definition.consumer;
+		this.isDataField = this.definition.isColumn() == false;
 		this.setState(this.definition.state);
 		dayjs.extend(customParseFormat);
     }
@@ -73,6 +81,9 @@ export class Field {
 				break;
 			case ContentType.KEYWORD:
 				this.renderer = new DropdownRenderer(this, parent, params ?? {});
+				break;
+			case ContentType.SELECTOR:
+				this.renderer = new SelectorRenderer(this, parent, params ?? {});
 				break;
 		}
 
@@ -111,8 +122,6 @@ export class Field {
 		Router.instance.pageBuilder.genericFooter?.unlock(false);
 	}
 	async setValue(value: string | Number | Object | null, dontRecalculate: boolean) {
-		
-		this.setLocal(value);
 		this.value.setValue(value);
 
 		if (dontRecalculate == false) {
@@ -176,44 +185,47 @@ export class Field {
 		this.isLocked = false;
 		this.renderer?.unlockField();
 	}
-	async execute(type: ProcessType) {
+	async execute(local: ILocal, type: ProcessType) {
+		local.field = this;
+		local.value = this.value.value;
+
 		switch (type) {
 			case ProcessType.VALUE:
 				if (this.definition.valueProcess != null) {
-					const result = await this.definition.valueProcess();
+					const result = await this.definition.valueProcess(local);
 					this.value = result == null ? new Value(null) : new Value(result);
 				}
 				break;
 			case ProcessType.DISPLAYVALUE:
 				if (this.definition.displayValueProcess != null) {
-					const result = await this.definition.displayValueProcess();
+					const result = await this.definition.displayValueProcess(local);
 					this.displayValue = result == null ? new Value(null) : new Value(result);
 				}
 				break;
 			case ProcessType.ONVALUECHANGE:
 				if (this.definition.onValueChangedProcess != null) {
-					await this.definition.onValueChangedProcess(local.oldValue, local.newValue);
+					await this.definition.onValueChangedProcess(local);
 				}
 				break;
 			case ProcessType.ONVALIDATION:
 				if (this.definition.onValidationProcess != null) {
-					this.isValid = await this.definition.onValidationProcess();
+					this.isValid = await this.definition.onValidationProcess(local);
 				}
 				break;
 			case ProcessType.DROPDOWN:
 				if (this.definition.dropdownProcess != null && this.contentType() == ContentType.KEYWORD) {
-					this.listItems = await this.definition.dropdownProcess();
+					this.listItems = await this.definition.dropdownProcess(local);
 				}
 				break;
 			case ProcessType.ONSTATE:
 				if (this.definition.onStateProcess != null) {
-					const result = await this.definition.onStateProcess();
+					const result = await this.definition.onStateProcess(local);
 					this.setState(result);
 				}
 				break;
 			case ProcessType.COLORPROCESS:
 				if (this.definition.colorProcess != null) {
-					const colorValue = await this.definition.colorProcess();
+					const colorValue = await this.definition.colorProcess(local);
 
 					if (colorValue == null) {
 						this.color = '#FFF';
@@ -275,14 +287,6 @@ export class Field {
 			this.renderer?.setColor(this.color);
 		}
 	}
-	setLocal(value:any|null) {
-		local.field = this;
-		local.fieldDefinition = this.definition;
-		local.state = this.state;
-		local.value = value ?? this.value;
-		local.newValue = value ?? this.value;
-		local.oldValue = this.value.value;
-	}
 	hide() {
 		if (this.renderer != null) {
 			this.renderer.isHidden = true;
@@ -299,5 +303,25 @@ export class Field {
 		if (this.renderer != null) {
 			this.renderer.setLoading(state);
 		}
+	}
+	getSpecialDefinition(fieldName: string): FieldDefinition {
+		let fieldDef: FieldDefinition;
+
+		switch (fieldName.toLowerCase()) {
+			default:
+			case "selector":
+				fieldDef = new FieldDefinition("SELECTOR", {
+					title: "Selector",
+					contentType:ContentType.NUMBER
+				});
+				break;
+			case "#uuid":
+				fieldDef = new FieldDefinition("#uuid", {
+					title:"#UUID"
+				});
+				break;
+		}
+
+		return fieldDef;
 	}
 }

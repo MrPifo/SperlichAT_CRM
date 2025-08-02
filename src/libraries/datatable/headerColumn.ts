@@ -30,7 +30,7 @@ export class HeaderColumn {
 		if (this.hidden) {
 			this.hideColumn();
 		}
-		if (this.name == "SELECTOR") {
+		if (this.contentType == ContentType.SELECTOR) {
 			let selector = $(`
 				<label>
 					<input type="checkbox" value="false" name="SELECTOR" />

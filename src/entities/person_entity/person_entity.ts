@@ -31,7 +31,7 @@ person_entity.addField("LOCATION", {
 	column: "true"
 });
 person_entity.addField("Icon", {
-	title:"",
+	title:"Icon",
 	contentType:ContentType.IMAGE
 });
 
@@ -68,7 +68,7 @@ previewPage.appendViews(
 		"FIRSTNAME",
 		"LASTNAME",
 		"DATEOFBIRTH",
-		"LOCATION",
+		"LOCATION"
 	], {
 		title:"Kontaktdaten",
 		showTitleBar:true

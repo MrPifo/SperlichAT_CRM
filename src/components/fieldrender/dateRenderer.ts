@@ -1,7 +1,7 @@
 import { Datepicker } from 'vanillajs-datepicker';
 import { ContentType, Field } from "@models";
 import { FieldRenderer, IRenderParams } from "@component";
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import 'vanillajs-datepicker/locales/de';
 
 export class DateRenderer extends FieldRenderer {
@@ -22,7 +22,15 @@ export class DateRenderer extends FieldRenderer {
 	setDisplayValue(value: any | null) {
 		if (this.noInputElement == true) {
 			const dateFormat = this.contentType == ContentType.DATETIME ? 'D.M.YYYY HH:mm' : 'D.M.YYYY';
-			this.valueHtml?.html(dayjs(value, 'YYYY-MM-DD').format(dateFormat));
+			let date:Dayjs|string = dayjs(value, 'YYYY-MM-DD');
+
+			if (date.isValid() == false) {
+				date = '';
+			} else {
+				date = date.format(dateFormat);
+			}
+
+			this.valueHtml?.html(date as string);
 		} else {
 			const dateObj = new Date(value);
 			this.getPicker().setDate(dateObj);

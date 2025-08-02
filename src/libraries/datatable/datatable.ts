@@ -1,17 +1,19 @@
 import $ from 'jquery';
-import { Cell, Row, HeaderColumn, DataTableConfig } from '@datatable';
+import { Cell, Row, HeaderColumn, DataTableConfig, TablePagination } from '@datatable';
 import { TableView } from '@views';
-import { ContentType } from '@/models';
-import { local } from '@/core';
+import { ContentType, Field } from '@/models';
+import { ProcessType, ViewData } from '@/models/data';
+import { db, entities, EntityLoader, SqlBuilder } from '@/core';
 
 export class DataTable {
 
-	private view: TableView;
+	public view: TableView;
 	private container: JQuery<HTMLElement>;
 	public tableContainerHtml!: JQuery<HTMLElement>;
 	private headerHtml!: JQuery<HTMLElement>;
 	private bodyHtml!: JQuery<HTMLElement>;
 	private footerHtml!: JQuery<HTMLElement>;
+	private paginator!: TablePagination;
 
 	// Config
 	selectAllRows: boolean = false;
@@ -19,14 +21,23 @@ export class DataTable {
 	headerColumns: HeaderColumn[] = [];
 
 	// Data
+	context: string;
 	public rows: Row[] = [];
 	selectedRows: Row[] = [];
+	pageNumber!: number;
+	rowData!: ViewData[];
+	pageData!: ViewData[];
+	rowIds!: string[];
+	rowCount!: number;
+	totalRowCount!: number;
+	pageLength: number = 20;
 
 	// Callbacks
 	onRowSelected: ((row: Row) => void)[] = [];
 	onRowDeselected: ((row: Row) => void)[] = [];
 
-	constructor(view: TableView, containerId: string, config?: DataTableConfig) {
+	constructor(view: TableView, context:string, containerId: string, config?: DataTableConfig) {
+		this.context = context;
 		this.view = view;
 		this.container = $(`#${containerId}`);
 
@@ -35,12 +46,16 @@ export class DataTable {
 			this.setColumns(config.columns);
 		}
 
+		this.paginator = new TablePagination();
+		this.paginator.onPageChangeEvent.addListener((pageNum) => {
+			this.loadData(pageNum);
+		});
 		this.renderTableContainer();
 	}
 
 	render() {
 		this.renderHeader();
-		this.renderBody();
+		this.renderRows();
 		this.renderFooter();
 	}
 	refresh() {
@@ -52,39 +67,11 @@ export class DataTable {
 		this.headerHtml = $(`<thead></thead>`);
 		this.bodyHtml = $(`<tbody></tbody>`);
 		this.footerHtml = $(`<tfoot></tfoot>`);
+		this.footerHtml.append(this.paginator.createHtml());
 		this.tableContainerHtml.append(this.headerHtml);
 		this.tableContainerHtml.append(this.bodyHtml);
 		this.tableContainerHtml.append(this.footerHtml);
 		this.container.append(this.tableContainerHtml);
-		this.renderEmptyRows();
-	}
-	async renderBody() {
-		this.bodyHtml.empty();
-		this.rows.forEach(row => {
-			this.bodyHtml.append(row.createFullRowHtml());
-		});
-		for (const row of this.rows) {
-			local.fieldMap = {};
-			const setValuePromises:any = [];
-			
-			row.cells.forEach(c => {
-				//@ts-ignore
-				local.fieldMap[c.field?.fieldName] = c.field;
-				if (c.field?.setValue) {
-					setValuePromises.push(c.field.setValue(c.value, true));
-				}
-			});
-			
-			await Promise.all(setValuePromises);
-		}
-		
-		const setValuePromises:any = [];
-		for (const row of this.rows) {
-			for (const cell of row.cells) {
-				setValuePromises.push(cell.setValue(cell.value));
-			}
-		}
-		await Promise.all(setValuePromises);
 	}
 	renderHeader() {
 		this.headerHtml.empty();
@@ -94,18 +81,88 @@ export class DataTable {
 		});
 		this.headerHtml.append(headerRow);
 	}
+	async renderRows() {
+		this.bodyHtml.empty();
+		this.rows = [];
+
+		for (let i = 0; i < this.rowCount; i++) {
+			const data = this.rowData[i];
+			const fields = data.getFields();
+			const row = new Row(this, data.uuid, i, []);
+			row.rowData = data;
+			
+			for (let c = 0; c < this.headerColumns.length; c++) {
+				const columnName = this.headerColumns[c];
+				const field: Field = data.fieldMap[columnName.name];
+
+				const cell = new Cell(field);
+
+				if (columnName.hidden == true) {
+					cell.hide();
+				}
+
+				row.cells.push(cell);
+			}
+
+			this.rows.push(row);
+		}
+
+		for (const row of this.rows) {
+			this.bodyHtml.append(row.createHtml());
+		}
+		
+		const rowPromises = [];
+		for (const row of this.rows) {
+			const rowPromise = async () => {
+				row.rowData.setFieldLoadingState(true);
+				
+				await row.rowData.processFields(ProcessType.VALUE);
+				await row.rowData.processFields(ProcessType.DISPLAYVALUE);
+				await row.rowData.processFields(ProcessType.ONSTATE);
+				await row.rowData.processFields(ProcessType.ONVALUECHANGE);
+				await row.rowData.processFields(ProcessType.ONVALIDATION);
+				await row.rowData.processFields(ProcessType.COLORPROCESS);
+				await row.rowData.processFields(ProcessType.DROPDOWN);
+				
+				row.rowData.setFieldLoadingState(false);
+				row.rowData.refreshFieldVisuals();
+			};
+			
+			rowPromises.push(rowPromise());
+		}
+
+		await Promise.all(rowPromises);
+	}
 	renderFooter() {
 		this.footerHtml.empty();
 		let entryCountText = $(`
-			<span>Entries: ${this.rows.length}</span>
+			<tr>
+				<td colspan="999">
+					<div id="footerElementList" class="is-flex is-justify-content-space-between" style="width: 100%;">
+						<div>
+							<span class="has-text-grey-dark">Entries: ${this.totalRowCount}</span>
+						</div>
+					</div>
+				</td>
+			</tr>
 		`);
 		this.footerHtml.append(entryCountText);
+		this.footerHtml.find('#footerElementList').append(this.paginator.containerHtml);
+		//this.paginator.clear();
 	}
-	renderEmptyRows() {
+	preloadSite(ids:string[]) {
+		this.bodyHtml.empty();
+		this.rows = [];
 
+		for (let i = 0; i < ids.length; i++) {
+			const row = new Row(this, ids[i], i, []);
+			this.bodyHtml.append(row.createHtml());
+
+			this.rows.push(row);
+		}
 	}
 	setColumns(columns: HeaderColumn[]) {
-		let selectorColumn = new HeaderColumn(0, "SELECTOR", "", ContentType.BOOLEAN);
+		let selectorColumn = new HeaderColumn(0, "SELECTOR", "", ContentType.NUMBER);
 		columns.unshift(selectorColumn);
 
 		if (this.multiSelect == false) {
@@ -118,44 +175,6 @@ export class DataTable {
 
 		this.headerColumns = columns;
 	}
-	setData(data: string[][]) {
-		this.rows = [];
-		this.rows = data.map((src, rowIndex) => {
-			const cells: Cell[] = [];
-			let dataIndex = 0;
-			
-			this.headerColumns.forEach((column, columnIndex) => {
-				let cellValue: string;
-				
-				if (column.contentType === ContentType.BOOLEAN) {
-					// SELECTOR bekommt immer den ersten Wert (die ID)
-					cellValue = src[0];
-				} else if (column.name === "#UUID") {
-					// #UUID bekommt auch den ersten Wert (die ID)
-					cellValue = src[0];
-					dataIndex = 1; // Nächste Daten ab Index 1
-				} else {
-					// Alle anderen Columns bekommen die Daten der Reihe nach
-					cellValue = src[dataIndex];
-					dataIndex++;
-				}
-				
-				const cell: Cell = new Cell(this.view.entity.name, column.name, cellValue, column.contentType);
-				
-				if (column.hidden) {
-					cell.hide();
-				}
-				
-				cells.push(cell);
-			});
-
-			const row: Row = new Row(this, src[0], cells);
-			row.index = rowIndex;
-			row.cells.forEach(c => c.row = row);
-
-			return row;
-		});
-	}
 	getRow():JQuery<HTMLElement> {
 		const row = $(`<tr></tr>`);
 		row.addClass("datatable-row");
@@ -167,5 +186,56 @@ export class DataTable {
 	}
 	fireRowDeselected(row: Row) {
 		this.onRowDeselected.forEach(callback => callback(row));
+	}
+	async loadData(pageNumber: number) {
+		this.pageNumber = pageNumber;
+		const rowRange: number = pageNumber * this.pageLength;
+		const entity = entities.getEntity(this.context);
+		const sqlBuilder = entity.transpileQuery({
+			returnAsBuilder: true,
+			fields:[entity.getPrimaryKeyColumn()]
+		}) as SqlBuilder;
+		const rowCountSql = entity.transpileQuery({
+			returnAsBuilder: false,
+			fields:[`COUNT(1)`]
+		}) as string;
+		
+		this.rowIds = (await sqlBuilder
+			.limit(this.pageLength)
+			.offset(rowRange)
+			.table()).flatMap(r => r);
+		
+		this.rows = [];
+		this.rowData = [];
+		this.rowCount = this.rowIds.length;
+		this.totalRowCount = Number(await db.cell(rowCountSql));
+		this.preloadSite(this.rowIds);
+
+		const rowPromises = [];
+		for (let i = 0; i < this.rowCount; i++) {
+			const id = this.rowIds[i];
+			const viewData = new ViewData(this.context, this.view, id);
+			viewData.loadAllFieldsFromEntity();
+			
+			this.rowData.push(viewData);
+			rowPromises.push(viewData.loadData());
+		}
+
+		await Promise.all(rowPromises);
+
+		for (let i = 0; i < this.rowCount; i++) {
+			const rowData = this.rowData[i];
+			rowData.fieldMap["SELECTOR"] = new Field(this.context, "SELECTOR", i * (this.pageNumber + 1));
+			rowData.fieldMap["SELECTOR"].definition.displayValueProcess = async function (local):Promise<any> {
+				if (local.value != null) {
+					return local.value.toString().split('.')[0];
+				}
+				return local.value;
+			};
+			//rowData.fieldMap["#UUID"] = new Field(this.context, "#UUID");
+		}
+
+		this.paginator.setDataCounts(this.pageLength, this.totalRowCount);
+		this.paginator.setPage(pageNumber);
 	}
 }

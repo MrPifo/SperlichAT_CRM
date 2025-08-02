@@ -1,5 +1,5 @@
-import { SqlBuilder } from '@core';
+import { ILocal, SqlBuilder } from '@core';
 
-export function fromProcess(sqlBuilder: SqlBuilder) {
+export function fromProcess(local:ILocal, sqlBuilder: SqlBuilder) {
     return sqlBuilder.from("PERSON");
 }

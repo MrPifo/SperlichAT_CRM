@@ -1,6 +1,7 @@
 export { Icons } from './icons';
 export { sys, OperatingState, ViewMode, State } from "./sys";
-export { local } from './local';
+export { buildLocal } from './local';
+export type { ILocal } from './local';
 export { SqlBuilder } from "./sqlbuilder";
 export { entities } from './entities';
 export { selection } from './selection';

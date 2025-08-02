@@ -18,7 +18,7 @@ export class FieldRenderer extends BaseRenderer {
 	}
 	createHtml() {
 		this.rowHtml = $(`<div class="field is-horizontal"></div>`);
-
+		
 		if (this.hideLabel == false) {
 			this.labelHtml = $(`<label for="${this.renderID}" class="field-label is-normal">${this.fieldInfo?.getTitle()}</label>`);
 			this.rowHtml.append(this.labelHtml);

@@ -13,7 +13,12 @@ export class NumberRenderer extends FieldRenderer {
 		if (isNaN(displayText)) {
 			displayText = 0;
 		}
-		displayText = this.formatNumber(displayText);
+
+		if (this.field?.displayValue != null) {
+			displayText = this.field.displayValue.getValueAsString(); 
+		} else {
+			displayText = this.formatNumber(displayText); 
+		}
 
 		if (this.noInputElement == true) {
 			this.valueHtml?.html(displayText);

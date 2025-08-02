@@ -1,5 +1,5 @@
 import { IListValue } from "@/components";
-import { State } from "@core";
+import { ILocal, State } from "@core";
 import { IConsumer, IFieldParams, Value } from "@datamodels";
 import tinycolor from "tinycolor2";
 
@@ -19,14 +19,14 @@ export class FieldDefinition {
 	isColumn = (): boolean => this.params.column != null;
 	
 	// Processes
-	valueProcess?: () => Promise<any>;
-	displayValueProcess?: () => Promise<any>;
-	onValueChangedProcess?: (oldValue: Value, newValue: Value) => Promise<void>;
-	onValidationProcess?: () => Promise<boolean>;
-	onStateProcess?: () => Promise<State>;
-	titleProcess?: () => Promise<any>;
-	colorProcess?: () => Promise<tinycolor.Instance | string | null>;
-	dropdownProcess?: () => Promise<IListValue[]>;
+	valueProcess?: (local:ILocal) => Promise<any>;
+	displayValueProcess?: (local:ILocal) => Promise<any>;
+	onValueChangedProcess?: (local:ILocal) => Promise<void>;
+	onValidationProcess?: (local:ILocal) => Promise<boolean>;
+	onStateProcess?: (local:ILocal) => Promise<State>;
+	titleProcess?: (local:ILocal) => Promise<any>;
+	colorProcess?: (local:ILocal) => Promise<tinycolor.Instance | string | null>;
+	dropdownProcess?: (local:ILocal) => Promise<IListValue[]>;
 
 	constructor(name: string, params: IFieldParams) {
 		this.name = name;
@@ -57,5 +57,6 @@ export enum ContentType {
 	BOOLEAN = 4,
 	ICON = 5,
 	IMAGE = 6,
-	KEYWORD = 7
+	KEYWORD = 7,
+	SELECTOR = 8
 }

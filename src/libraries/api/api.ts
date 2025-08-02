@@ -6,7 +6,8 @@ export const api = {
 	POST: "post",
 	GET:"get",
 	token: localStorage.getItem("token"),
-	apiUrl: "https://sperlich.at/api/crm/",
+	//apiUrl: "https://sperlich.at/api/crm/",
+	apiUrl: "http://localhost:80/api/crm/",
 	paths: {
 		GENERIC_SQL:"executeSql.php"
 	},
@@ -52,7 +53,7 @@ export const api = {
 		if (config.method === undefined) {
 			config.method = this.POST;
 		}
-	
+		
 		let url: any = new URL(path, this.apiUrl);
 		if (url.toString().slice(-4) != '.php') {
 			url += ".php";

@@ -1,6 +1,6 @@
-import { local } from "@core";
+import { ILocal } from "@core";
 
-export function valueProcess(): any {
+export function valueProcess(local:ILocal): any {
 	let type = local.getFinalValue("TRANSACTIONTYPE");
 	if (type != null) {
 		if (type == "OUT") {
