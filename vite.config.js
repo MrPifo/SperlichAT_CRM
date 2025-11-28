@@ -18,14 +18,6 @@ export default defineConfig({
         alias: {
             '@': path.resolve(__dirname, './src'),
             '@core': path.resolve(__dirname, './src/core'),
-            '@models': path.resolve(__dirname, './src/models'),
-            '@views': path.resolve(__dirname, './src/views'),
-            '@entities': path.resolve(__dirname, './src/entities'),
-            '@sqlBuilder': path.resolve(__dirname, './src/libraries/sqlbuilder'),
-            '@libraries': path.resolve(__dirname, './src/libraries'),
-            '@datamodels': path.resolve(__dirname, './src/models/data'),
-            '@datatable': path.resolve(__dirname, './src/libraries/datatable'),
-            '@component': path.resolve(__dirname, './src/components')
         }
     },
     build: {

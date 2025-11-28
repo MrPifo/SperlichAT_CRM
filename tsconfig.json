@@ -18,15 +18,7 @@
     "baseUrl": ".",
     "paths": {
         "@/*": ["src/*"],
-        "@core": ["src/core"],
-        "@models": ["src/models"],
-        "@views": ["src/views"],
-        "@entities/*": ["src/entities/*"],
-        "@sqlBuilder": ["src/libraries/sqlbuilder"],
-        "@libraries": ["src/libraries"],
-        "@datamodels": ["src/models/data"],
-        "@datatable": ["src/libraries/datatable"],
-        "@component": ["src/components"]
+        "@core": ["src/core"]
     }
   },
   "include": [

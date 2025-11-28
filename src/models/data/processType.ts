@@ -1,9 +1,0 @@
-export enum ProcessType {
-	VALUE = 0,
-	DISPLAYVALUE = 1,
-	ONVALUECHANGE = 2,
-	ONVALIDATION = 3,
-	DROPDOWN = 4,
-	ONSTATE = 5,
-	COLORPROCESS = 6
-}

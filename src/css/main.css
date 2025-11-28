@@ -1,14 +1,8 @@
 html {
     overflow-y: hidden;   
 }
-#bodyContainer {
-	
-}
 .material-icons {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}
-.choices[data-type="select-one"] .choices__list--dropdown {
-    pointer-events: auto !important;
 }
