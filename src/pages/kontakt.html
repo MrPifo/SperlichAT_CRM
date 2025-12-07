@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="/css/pages/contactPage.css" media="screen,projection" />
+    <script type="module">
+        import '../main.ts';
+    </script>
+    <title>Kontakte - CRM System</title>
+    <base href="/crm/">
+</head>
+
+<body>
+    <app-header></app-header>
+    <div class="main-content">
+        <div class="contacts-container">
+            <div class="page-header">
+                <h2 class="ui header inverted">Kontakte</h2>
+                <div class="ui">
+                    <button id="delete-button" class="ui red button labeled icon" style="display:none"><i class="trash icon"></i>Löschen</button>
+                    <button id="edit-button" class="ui teal button labeled icon" style="display:none"><i class="pen icon"></i>Bearbeiten</button>
+                    <button id="create-button" class="ui primary button labeled icon"><i class="plus icon"></i>Neuer Kontakt</button>
+                </div>
+            </div>
+            <div id="contact-list" class="ui three column grid stackable">
+                <!--contact-card firstname="Max" lastname="Kraft" email="max.kraft@example.com" phone="+49 123 456789"
+                    birthday="15.03.1990" gender="male" avatarcolor="#4a9eff"></contact-card>
+                <contact-card firstname="Anna" lastname="Schmidt" email="anna.schmidt@example.com"
+                    phone="+49 987 654321" gender="female" avatarcolor="#9b59b6"></contact-card-->
+            </div>
+        </div>
+    </div>
+</body>
+<script type="module" src="/pages/ts/kontakt.ts"></script>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="/css/pages/contactPage.css" media="screen,projection" />
+    <link type="text/css" rel="stylesheet" href="/css/pages/editPage.css" media="screen,projection" />
+    <script type="module">
+        import '../main.ts';
+    </script>
+    <title>Edit Page</title>
+    <base href="/crm/">
+</head>
+
+<body>
+    <app-header></app-header>
+    <div class="main-content">
+        <div class="edit-container">
+            <div class="page-header">
+                <h2 id="page-title" class="ui header inverted">Kontakt bearbeiten</h2>
+            </div>
+            <div id="edit-formular" class="ui inverted form">
+                <div id="edit-formular-fields">
+                </div>
+                <div id="validation-error" class="ui error message hidden">
+                    <p></p>
+                </div>
+                <div class="form-actions">
+                    <button id="save-btn" class="ui olive button">Speichern</button>
+                    <button id="cancel-btn" class="ui negative button">Abbrechen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="module" src="/pages/ts/editPage.ts"></script>
+
+</html>

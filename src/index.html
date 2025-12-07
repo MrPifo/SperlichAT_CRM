@@ -4,54 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
-    <link type="text/css" rel="stylesheet" href="css/main.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/pageNewEdit.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/menubar.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/genericView.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/configTools.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/colors.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/page.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/fieldRenderer.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/previewWindow.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/avatarImage.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/lookupWindow.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/datepicker-dark.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/datepicker-bulma.min.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/datepicker-foundation.min.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="libraries/datatable/css/datatable.css" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="css/loading-spinner-ellipsis.css">
-    <link href="https://cdn.jsdelivr.net/npm/choices.js@11.1.0/public/assets/styles/choices.min.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/css/pages/menuPage.css" media="screen,projection" />
     <script type="module">
         import './main.ts';
     </script>
     <title>CRM System</title>
-    <base href="/crm/">
+    <style>
+
+    </style>
 </head>
+
 <body>
-    <div id="bodyContainer" class="columns is-mobile">
-        <div class="column is-2">
-            <aside id="menubar" class="menu"></aside>
-        </div>
-        <div class="column" id="pageContainer">
-            <section id="pageTitle"><h3 class="title is-3">Home</h2></section>
-            <div id="pageWrapper" class="is-flex is-flex-direction-column">
-                <section id="pageContent" class="is-flex-grow-1 "></section>
+    <app-header></app-header>
+    <div class="main-content">
+        <div class="tile-grid">
+            <div class="ui three column grid stackable">
+                <tile-card href="pages/kontakt.html" icon="address book" color="pink" title="Kontakte"></tile-card>
+                <tile-card href="/crm/termine" icon="calendar" color="teal" title="Termine"></tile-card>
+                <tile-card href="pages/keywords.html" icon="tags" color="grey" title="Schlüsselwörter"></tile-card>
             </div>
-        </div>
-        <div id="previewWindow" class="column" style="display:none">
-            <div id="closeTab" class="block">
-                <button id="closeBtn"><span class="material-icons">close</span></button>
-            </div>
-            <div id="previewWindowContent"></div>
-        </div>
-        <div id="lookupWindow" class="window-hidden">
-            <div id="lookupWindowContent"></div>
         </div>
     </div>
 </body>
-<!--script src="https://cdn.jsdelivr.net/npm/choices.js@11.1.0/public/assets/scripts/choices.min.js"></script-->
-<!--script src="https://unpkg.com/clusterize.js@0.18.0/clusterize.min.js"></script>
-<script src="https://unpkg.com/frappe-datatable@0.0.5/dist/frappe-datatable.min.js"></script-->
 </html>

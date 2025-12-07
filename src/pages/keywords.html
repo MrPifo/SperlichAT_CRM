@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="/css/pages/keywordPage.css" media="screen,projection" />
+    <script type="module">
+        import '../main.ts';
+    </script>
+    <title>Schlüsselwörter</title>
+    <base href="/crm/">
+</head>
+
+<body>
+    <app-header></app-header>
+    <div class="main-content">
+        <div class="contacts-container">
+            <div class="page-header">
+                <h2 class="ui header inverted">Schlüsselwörter</h2>
+                <div class="ui">
+                    <button id="clear-cache-button" class="ui button labeled icon"><i class="refresh icon"></i>Cache leeren</button>
+                    <button id="delete-button" class="ui red button labeled icon" style="display:none"><i
+                            class="trash icon"></i>Löschen</button>
+                    <button id="edit-button" class="ui teal button labeled icon" style="display:none"><i
+                            class="pen icon"></i>Bearbeiten</button>
+                    <button id="create-category-button" class="ui primary button labeled icon"><i class="archive icon"></i>Neue
+                        Kategorie</button>
+                    <button id="create-keyword-button" class="ui primary button labeled icon"><i class="key icon"></i>Neuer
+                        Schlüssel</button>
+                </div>
+            </div>
+            <div id="keywords-accordion" class="ui styled fluid inverted accordion">
+                <keyword-category name="Kontaktstatus" icon="circle check" color="green" active="true">
+                    <keyword-item keyid="STAT001" title="Aktiv" icon="circle check" color="green"
+                        active="true"></keyword-item>
+                    <keyword-item keyid="STAT002" title="Inaktiv" icon="circle" color="grey"
+                        active="false"></keyword-item>
+                    <keyword-item keyid="STAT003" title="Archiviert" icon="archive" color="orange"
+                        active="true"></keyword-item>
+                </keyword-category>
+
+                <keyword-category name="Branche" icon="briefcase" color="blue" active="false">
+                    <keyword-item keyid="BRAN001" title="IT & Software" icon="code" color="purple"
+                        active="true"></keyword-item>
+                    <keyword-item keyid="BRAN002" title="Einzelhandel" icon="shopping cart" color="teal"
+                        active="true"></keyword-item>
+                    <keyword-item keyid="BRAN003" title="Dienstleistung" icon="handshake" color="blue"
+                        active="true"></keyword-item>
+                </keyword-category>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="module" src="/pages/ts/keywordPage.ts"></script>
+
+</html>

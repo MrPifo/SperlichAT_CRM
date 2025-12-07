@@ -1,0 +1,68 @@
+.top-header {
+    background: #2d2e30;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    padding: 1.5rem 0;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    gap: 2rem;
+}
+
+.header-title {
+    flex: 1;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 300;
+    margin: 0;
+    color: #ffffff;
+}
+
+.home-link {
+    color: #4a9eff;
+    text-decoration: none;
+    font-size: 0.6cm;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.notification-icon,
+.account-icon {
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 0.9cm !important;
+}
+
+.account-dropdown {
+    cursor: pointer;
+}
+.account-dropdown .menu {
+    background: #2d2e30 !important;
+    border: 1px solid #3d3e40 !important;
+    margin-top: 0.5rem !important;
+    width: auto !important;
+    min-width: fit-content !important;
+}
+.account-dropdown .menu .item {
+    color: #ffffff !important;
+    white-space: nowrap;
+    font-size: 1.4rem !important;
+    padding: 1rem 1.5rem !important;
+}
+.account-dropdown .menu .item:hover {
+    background: #353638 !important;
+}
+.account-dropdown .menu .item i.icon {
+    font-size: 1.4rem !important;
+}

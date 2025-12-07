@@ -1,4 +1,4 @@
-import { api } from "@/libraries";
+import { api } from "@core";
 import { DynamicValue, SqlBuilder } from "@core";
 
 export class DB {
@@ -60,7 +60,7 @@ export class DB {
         const whereValues = Object.values(whereData);
         return this.updateData(tableName, setColumns, setValues, whereColumns, whereValues);
     }
-    async updateById(tableName: string, setColumns: string[], setValues: DynamicValue[], primaryKeyId: DynamicValue, idColumn: string): Promise<any> {
+    async updateById(tableName: string, idColumn: string, setColumns: string[], setValues: DynamicValue[], primaryKeyId: DynamicValue): Promise<any> {
         return this.updateData(tableName, setColumns, setValues, [idColumn], [primaryKeyId]);
     }
     async updateWithBuilder(tableName: string, setData: Record<string, DynamicValue>, whereBuilder: (builder: SqlBuilder) => SqlBuilder): Promise<any> {
@@ -90,7 +90,7 @@ export class DB {
         const whereValues = Object.values(whereData);
         return this.deleteData(tableName, whereColumns, whereValues);
     }
-    async deleteById(tableName: string, primaryKeyId: DynamicValue, idColumn: string = 'id'): Promise<any> {
+    async deleteById(tableName: string, idColumn: string, primaryKeyId: DynamicValue): Promise<any> {
         return this.deleteData(tableName, [idColumn], [primaryKeyId]);
     }
     async deleteWithBuilder(tableName: string, whereBuilder: (builder: SqlBuilder) => SqlBuilder): Promise<any> {

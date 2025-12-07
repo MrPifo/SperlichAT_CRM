@@ -1,4 +1,4 @@
-import { api }  from '@libraries';
+import { api }  from '@core';
 
 export class SqlBuilder {
 
@@ -243,8 +243,17 @@ export class SqlBuilder {
             singleRow: false,
             asMap:asMap ?? false
         });
-
-        return result["data"]["rows"];
+        
+        return result["rows"];
+    }
+    async row(asMap?: boolean): Promise<any[] | null> {
+        let result = await api.requestFromDB({
+            sql: this.toString(),
+            singleRow: true,
+            asMap: asMap ?? false
+        });
+        
+        return result["rows"]?.[0] ?? null;
     }
 
     toString():string {

@@ -2,8 +2,7 @@ import handlebars from 'vite-plugin-handlebars';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import path from 'path';
-import { entityProcessesPlugin } from './plugins/entity-compiler';
-import { autoLoadEntitiesPlugin } from './plugins/entity-compiler';
+import inject from '@rollup/plugin-inject';
 
 export default defineConfig({
     root: 'src',
@@ -18,33 +17,35 @@ export default defineConfig({
         alias: {
             '@': path.resolve(__dirname, './src'),
             '@core': path.resolve(__dirname, './src/core'),
+            '@types': path.resolve(__dirname, './src/types')
         }
+    },
+    input: {
+        main: resolve(__dirname, 'src/index.html'),
+        contacts: resolve(__dirname, 'src/pages/kontakt.html'),
+        login: resolve(__dirname, 'src/pages/loginPage.html'),
+        editPage:resolve(__dirname, 'src/pages/edit.html')
     },
     build: {
         outDir: '../dist',
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'src/index.html')
+                main: resolve(__dirname, 'src/index.html'),
+                contacts: resolve(__dirname, 'src/pages/kontakt.html'),
+                loginPage: resolve(__dirname, 'src/pages/loginPage.html'),
+                editPAge: resolve(__dirname,'src/pages/edit.html' )
             }
         }
     },
     plugins: [
-        entityProcessesPlugin(),
-        autoLoadEntitiesPlugin(),
+        inject({
+            $: "jquery",
+            jQuery: "jquery",
+            "window.jQuery": "jquery"
+        }),
         handlebars({
             partialDirectory: resolve(__dirname, 'partials'),
             reloadOnPartialChange: true
-        }),
-        {
-            name: 'spa-fallback',
-            configureServer(server) {
-                server.middlewares.use((req, res, next) => {
-                    if (!req.url.includes('.') && req.headers.accept?.includes('text/html')) {
-                        req.url = '/index.html';
-                    }
-                    next();
-                });
-            }
-        }
+        })
     ]
 });

@@ -1,13 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { AxiosRequestConfig } from "axios";
+import { router } from '@core';
 
 export const api = {
 
 	POST: "post",
 	GET:"get",
-	token: localStorage.getItem("token"),
-	//apiUrl: "https://sperlich.at/api/crm/",
-	apiUrl: "http://localhost:80/api/crm/",
 	paths: {
 		GENERIC_SQL:"executeSql.php"
 	},
@@ -40,43 +38,29 @@ export const api = {
 		
 		return result;
 	},
-	async request(path:string, config?:IRequestConfig) {
-		if (config == null) {
-			config = {};
-		}
-		if (config.token === undefined) {
-			config.token = this.token ?? "";
-		}
-		if (config.timeout === undefined) {
-			config.timeout = 10000;
-		}
-		if (config.method === undefined) {
-			config.method = this.POST;
-		}
-		
-		let url: any = new URL(path, this.apiUrl);
-		if (url.toString().slice(-4) != '.php') {
-			url += ".php";
-		}
-		
-		let response:AxiosResponse;
+	async request<T = any>(path: string, data?:any): Promise<T> {
+		let url = new URL(path, router.API_URL).toString();
+		if (!url.endsWith('.php')) url += '.php';
 
+		const token = localStorage.getItem('auth_token');
+		
 		try {
-			switch (config.method) {
-				default:
-				case this.POST:
-					response = await axios.post(url.toString(), config);
-					break;
-				case this.GET:
-					response = await axios.get(url.toString(), config);
-					break;
-			}
+			const response = await axios({
+				url:url,
+				method: 'POST',
+				timeout: 10000,
+				headers: {
+					'Content-Type': 'application/json',
+					...(token && { 'Authorization': `Bearer ${token}` })
+				},
+				data:data,
+			});
+			return response.data;
 		} catch (error: any) {
-			console.error(`API-Request error occured. \n ${error.response.data.errorMessage}`);
-			throw error.response.data.errorMessage;
+			const message = error.response?.data?.errorMessage ?? error.message;
+			console.error(`API-Request error: ${message}`);
+			throw message;
 		}
-
-		return response;
 	},
 	encodeSQL(sql:string):string {
 		const encoder = new TextEncoder();

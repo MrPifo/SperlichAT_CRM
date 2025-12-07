@@ -1,0 +1,52 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1rem;
+    background: #1b1c1d !important;
+    box-sizing: border-box;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 500px;
+}
+
+.login-box .ui.segment {
+    padding: 2.5rem;
+}
+
+.login-box h2 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin-bottom: 2rem;
+}
+
+.login-box input {
+    font-size: clamp(1rem, 4vw, 1.2rem) !important;
+    padding: 1rem !important;
+}
+
+.login-box .button {
+    font-size: clamp(1.1rem, 4vw, 1.3rem);
+    padding: 1.1rem;
+    margin-top: 1.5rem;
+}
+
+.login-box label {
+    font-size: clamp(1rem, 4vw, 1.2rem) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.login-box .field {
+    margin-bottom: 1.5rem !important;
+}
+
+#loginBtn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.3rem;
+    font-size: clamp(1.2rem, 4vw, 1.4rem);
+    margin-top: 2rem;
+}

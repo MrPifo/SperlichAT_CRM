@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/pages/loginPage.css">
+    <script type="module" src="/main.ts"></script>
+    <title>Login - CRM System</title>
+</head>
+
+<body>
+    <div class="login-box">
+        <div class="ui inverted segment">
+            <h2 class="ui inverted header centered">CRM Login</h2>
+            <div class="ui inverted form">
+                <div class="field">
+                    <label>Benutzer</label>
+                    <input type="text" id="username" value="Admin" readonly>
+                </div>
+                <div class="field">
+                    <label>Passwort</label>
+                    <input type="password" id="password" placeholder="Passwort">
+                </div>
+                <button class="ui fluid large button" id="loginBtn">Anmelden</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="module" src="/pages/ts/loginPage.ts"></script>
+</html>

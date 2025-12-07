@@ -1,8 +1,12 @@
 html {
-    overflow-y: hidden;   
+    overflow-y: hidden;
+    font-family: arial;
 }
-.material-icons {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #1b1c1d !important;
+    color: #ffffff;
 }
